@@ -1,0 +1,43 @@
+{
+  "command": "export LD_LIBRARY_PATH=$MESOS_SANDBOX:$LD_LIBRARY_PATH; export PATH=$MESOS_SANDBOX:$PATH && ./bootstrap -resolve=false -template=false && ./kubeadm",
+  "uris": [
+    {
+      "value": "https://github.com/containernetworking/plugins/releases/download/v0.7.5/cni-plugins-amd64-v0.7.5.tgz",
+      "extract": true,
+      "executable": false,
+      "cache": false
+    },
+    {
+      "value": "https://github.com/kubernetes-incubator/cri-tools/releases/download/v1.12.0/crictl-v1.12.0-linux-amd64.tar.gz",
+      "extract": true,
+      "executable": false,
+      "cache": false
+    },
+    {
+      "value": "https://storage.googleapis.com/kubernetes-release/release/v1.15.3/bin/linux/amd64/kubeadm",
+      "extract": false,
+      "executable": true,
+      "cache": false
+    },
+    {
+      "value": "https://storage.googleapis.com/kubernetes-release/release/v1.15.3/bin/linux/amd64/kubelet",
+      "extract": false,
+      "executable": true,
+      "cache": false
+    },
+    {
+      "value": "https://storage.googleapis.com/kubernetes-release/release/v1.15.3/bin/linux/amd64/kubectl",
+      "extract": false,
+      "executable": false,
+      "cache": false
+    },
+    {
+      "value": "https://downloads.mesosphere.com/dcos-commons/artifacts/0.56.0/bootstrap.zip",
+      "extract": true,
+      "executable": false,
+      "cache": false
+    }        
+  ]
+} 
+
+{    "command": "ip addr"}
