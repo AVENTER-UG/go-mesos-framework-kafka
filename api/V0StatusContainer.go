@@ -21,6 +21,7 @@ func V0StatusContainer(w http.ResponseWriter, r *http.Request) {
 	status := config.State[vars["taskID"]]
 
 	d, _ := json.Marshal(&status)
+
 	logrus.Debug("HTTP GET V0StatusContainer: ", string(d))
 
 	w.WriteHeader(http.StatusAccepted)
@@ -28,4 +29,8 @@ func V0StatusContainer(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Api-Service", "v0")
 
 	w.Write(d)
+}
+
+func waitUntilZookeeperOk() {
+
 }

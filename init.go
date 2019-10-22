@@ -16,6 +16,7 @@ func init() {
 	config.Password = os.Getenv("MESOS_PASSWORD")
 	config.MesosMasterServer = os.Getenv("MESOS_MASTER")
 	config.LogLevel = os.Getenv("LOGLEVEL")
+	config.Domain = os.Getenv("DOMAIN")
 
 	config.AppName = "Mesos TestFramework"
 }

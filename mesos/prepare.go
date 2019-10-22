@@ -49,7 +49,7 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 		networkMode = mesosproto.ContainerInfo_DockerInfo_USER.Enum()
 	}
 	if cmd.NetworkMode == "bridge" {
-		networkMode = mesosproto.ContainerInfo_DockerInfo_USER.Enum()
+		networkMode = mesosproto.ContainerInfo_DockerInfo_BRIDGE.Enum()
 	}
 
 	// Save state of the task
@@ -57,30 +57,61 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 	state.Command = cmd
 	config.State[newTaskID] = state
 
-	return []*mesosproto.TaskInfo{{
-		Name: &cmd.TaskName,
-		TaskId: &mesosproto.TaskID{
-			Value: &newTaskID,
-		},
-		AgentId:   agent,
-		Resources: defaultResources(),
-		Command: &mesosproto.CommandInfo{
-			Shell:       &cmd.Shell,
-			Value:       &cmd.Command,
-			Uris:        cmd.Uris,
-			Environment: &cmd.Environment,
-		},
-		Container: &mesosproto.ContainerInfo{
-			Type:    contype,
-			Volumes: cmd.Volumes,
-			Docker: &mesosproto.ContainerInfo_DockerInfo{
-				Image:      &cmd.ContainerImage,
-				Network:    networkMode,
-				Privileged: &cmd.Privileged,
+	if cmd.Shell == true {
+		return []*mesosproto.TaskInfo{{
+			Name: &cmd.TaskName,
+			TaskId: &mesosproto.TaskID{
+				Value: &newTaskID,
 			},
-			NetworkInfos: []*mesosproto.NetworkInfo{{
-				Name: &networkIsolator,
-			}},
-		},
-	}}, nil
+			AgentId:   agent,
+			Resources: defaultResources(),
+			Command: &mesosproto.CommandInfo{
+				Shell:       &cmd.Shell,
+				Value:       &cmd.Command,
+				Uris:        cmd.Uris,
+				Environment: &cmd.Environment,
+			},
+			Container: &mesosproto.ContainerInfo{
+				Type:     contype,
+				Volumes:  cmd.Volumes,
+				Hostname: &cmd.Hostname,
+				Docker: &mesosproto.ContainerInfo_DockerInfo{
+					Image:      &cmd.ContainerImage,
+					Network:    networkMode,
+					Privileged: &cmd.Privileged,
+				},
+				NetworkInfos: []*mesosproto.NetworkInfo{{
+					Name: &networkIsolator,
+				}},
+			},
+		}}, nil
+	} else {
+
+		return []*mesosproto.TaskInfo{{
+			Name: &cmd.TaskName,
+			TaskId: &mesosproto.TaskID{
+				Value: &newTaskID,
+			},
+			AgentId:   agent,
+			Resources: defaultResources(),
+			Command: &mesosproto.CommandInfo{
+				Shell:       &cmd.Shell,
+				Uris:        cmd.Uris,
+				Environment: &cmd.Environment,
+			},
+			Container: &mesosproto.ContainerInfo{
+				Type:     contype,
+				Volumes:  cmd.Volumes,
+				Hostname: &cmd.Hostname,
+				Docker: &mesosproto.ContainerInfo_DockerInfo{
+					Image:      &cmd.ContainerImage,
+					Network:    networkMode,
+					Privileged: &cmd.Privileged,
+				},
+				NetworkInfos: []*mesosproto.NetworkInfo{{
+					Name: &networkIsolator,
+				}},
+			},
+		}}, nil
+	}
 }

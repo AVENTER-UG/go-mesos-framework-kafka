@@ -36,7 +36,7 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 	select {
 	case cmd := <-config.CommandChan:
 		firstOffer := offers.Offers[0]
-		//refuseSeconds := float64(5)
+		agentID := offerIds[0].Value
 
 		var taskInfo []*mesosproto.TaskInfo
 
@@ -54,7 +54,9 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 		accept := &mesosproto.Call{
 			Type: mesosproto.Call_ACCEPT.Enum(),
 			Accept: &mesosproto.Call_Accept{
-				OfferIds: offerIds,
+				OfferIds: []*mesosproto.OfferID{{
+					Value: agentID,
+				}},
 				Operations: []*mesosproto.Offer_Operation{{
 					Type: mesosproto.Offer_Operation_LAUNCH.Enum(),
 					Launch: &mesosproto.Offer_Operation_Launch{

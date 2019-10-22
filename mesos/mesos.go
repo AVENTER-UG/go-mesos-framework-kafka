@@ -77,6 +77,17 @@ func Subscribe() error {
 			logrus.Info("Subscribed")
 			config.FrameworkInfo.Id = event.Subscribed.FrameworkId
 			config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
+
+			// Start the Zookeeper Container
+			startZookeeper(1, 1)
+			//startZookeeper(2, 3)
+			//startZookeeper(3, 3)
+			createZookeeperServerString(1)
+
+			// Start the Kafka Container
+			startKafka(1, 3)
+			startKafka(2, 3)
+			startKafka(3, 3)
 		case mesosproto.Event_UPDATE:
 			logrus.Info("Update", HandleUpdate(&event))
 		case mesosproto.Event_HEARTBEAT:

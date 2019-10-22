@@ -24,6 +24,8 @@ type Config struct {
 	Listen            string
 	CommandChan       chan Command
 	State             map[string]State
+	Domain            string
+	ZookeeperServers  string
 }
 
 // Command is a chan which include all the Information about the started tasks
@@ -46,5 +48,6 @@ type Command struct {
 // State will have the state of all tasks stated by this framework
 type State struct {
 	Command Command
-	Status  string `json:"status"`
+	Status  string                 `json:"status"`
+	Task    *mesosproto.TaskStatus `json:"task"`
 }

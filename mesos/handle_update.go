@@ -11,14 +11,15 @@ func HandleUpdate(event *mesosproto.Event) error {
 
 	taskStatus := event.GetUpdate().GetStatus()
 
-	taskID := *taskStatus.TaskId.Value
+	if taskStatus != nil {
+		taskID := *taskStatus.TaskId.Value
 
-	state := config.State[taskID]
-	state.Status = taskStatus.GetState().String()
-	config.State[taskID] = state
+		state := config.State[taskID]
+		state.Status = taskStatus.GetState().String()
+		state.Task = taskStatus
+		config.State[taskID] = state
 
-	logrus.Debug("HandleUpate cmd: ", state)
-
+		logrus.Debug("HandleUpate cmd: ", state)
+	}
 	return nil
-
 }
