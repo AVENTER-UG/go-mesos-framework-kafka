@@ -1,25 +1,21 @@
 package mesos
 
 import (
-	"github.com/sirupsen/logrus"
-
-	"../proto"
+	mesosproto "../proto"
 )
 
 // HandleUpdate will handle the offers event of mesos
 func HandleUpdate(event *mesosproto.Event) error {
+	update := event.Update
 
-	taskStatus := event.GetUpdate().GetStatus()
-
-	if taskStatus != nil {
-		taskID := *taskStatus.TaskId.Value
-
-		state := config.State[taskID]
-		state.Status = taskStatus.GetState().String()
-		state.Task = taskStatus
-		config.State[taskID] = state
-
-		logrus.Debug("HandleUpate cmd: ", state)
+	msg := &mesosproto.Call{
+		Type: mesosproto.Call_ACKNOWLEDGE.Enum(),
+		Acknowledge: &mesosproto.Call_Acknowledge{
+			AgentId: update.Status.AgentId,
+			TaskId:  update.Status.TaskId,
+			Uuid:    update.Status.Uuid,
+		},
 	}
-	return nil
+	return Call(msg)
+
 }

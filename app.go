@@ -1,13 +1,16 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
 
 	"./api"
 	"./mesos"
-	"./proto"
+	mesosproto "./proto"
 	cfg "./types"
 
 	util "git.aventer.biz/AVENTER/util"
@@ -28,23 +31,30 @@ func main() {
 	checkpoint := true
 	webuiurl := fmt.Sprintf("http://%s%s", hostname, listen)
 
-	config.FrameworkInfo.User = &config.FrameworkUser
-	config.FrameworkInfo.Name = &config.FrameworkName
-	config.FrameworkInfo.Hostname = &hostname
-	config.FrameworkInfo.WebuiUrl = &webuiurl
+	config.FrameworkInfoFile = fmt.Sprintf("%s/%s", os.TempDir(), "framework.json")
+	config.CommandChan = make(chan cfg.Command, 100)
 	config.Hostname = hostname
 	config.Listen = listen
-	config.FrameworkInfo.FailoverTimeout = &failoverTimeout
-	config.FrameworkInfo.Checkpoint = &checkpoint
-	config.FrameworkInfo.Principal = &config.Principal
-	config.FrameworkInfo.Capabilities = []*mesosproto.FrameworkInfo_Capability{
-		{Type: mesosproto.FrameworkInfo_Capability_RESERVATION_REFINEMENT.Enum()},
-	}
-	config.CommandChan = make(chan cfg.Command, 100)
 
 	util.SetLogging(config.LogLevel, config.EnableSyslog, config.AppName)
 
 	config.State = map[string]cfg.State{}
+
+	frameworkJSON, err := ioutil.ReadFile(config.FrameworkInfoFile)
+	if err == nil {
+		json.Unmarshal([]byte(frameworkJSON), &config)
+	} else {
+		config.FrameworkInfo.User = &config.FrameworkUser
+		config.FrameworkInfo.Name = &config.FrameworkName
+		config.FrameworkInfo.Hostname = &hostname
+		config.FrameworkInfo.WebuiUrl = &webuiurl
+		config.FrameworkInfo.FailoverTimeout = &failoverTimeout
+		config.FrameworkInfo.Checkpoint = &checkpoint
+		config.FrameworkInfo.Principal = &config.Principal
+		config.FrameworkInfo.Capabilities = []*mesosproto.FrameworkInfo_Capability{
+			{Type: mesosproto.FrameworkInfo_Capability_RESERVATION_REFINEMENT.Enum()},
+		}
+	}
 
 	mesos.SetConfig(&config)
 	api.SetConfig(&config)

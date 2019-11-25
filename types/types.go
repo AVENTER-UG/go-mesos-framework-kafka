@@ -1,6 +1,6 @@
 package types
 
-import "../proto"
+import mesosproto "../proto"
 
 // Config is a struct of the framework configuration
 type Config struct {
@@ -9,6 +9,7 @@ type Config struct {
 	FrameworkUser     string
 	FrameworkName     string
 	FrameworkInfo     mesosproto.FrameworkInfo
+	FrameworkInfoFile string
 	Principal         string
 	Username          string
 	Password          string
@@ -22,7 +23,7 @@ type Config struct {
 	EnableSyslog      bool
 	Hostname          string
 	Listen            string
-	CommandChan       chan Command
+	CommandChan       chan Command `json:"-"`
 	State             map[string]State
 	Domain            string
 	ZookeeperServers  string
@@ -48,6 +49,5 @@ type Command struct {
 // State will have the state of all tasks stated by this framework
 type State struct {
 	Command Command
-	Status  string                 `json:"status"`
-	Task    *mesosproto.TaskStatus `json:"task"`
+	State   *mesosproto.TaskState `json:"state"`
 }

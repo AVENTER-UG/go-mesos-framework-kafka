@@ -4,14 +4,16 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 
-	"../proto"
+	mesosproto "../proto"
 	cfg "../types"
 
 	"github.com/golang/protobuf/jsonpb"
@@ -36,8 +38,11 @@ func SetConfig(cfg *cfg.Config) {
 // Subscribe to the mesos backend
 func Subscribe() error {
 	subscribeCall := &mesosproto.Call{
-		Type:      mesosproto.Call_SUBSCRIBE.Enum(),
-		Subscribe: &mesosproto.Call_Subscribe{FrameworkInfo: &config.FrameworkInfo},
+		FrameworkId: config.FrameworkInfo.Id,
+		Type:        mesosproto.Call_SUBSCRIBE.Enum(),
+		Subscribe: &mesosproto.Call_Subscribe{
+			FrameworkInfo: &config.FrameworkInfo,
+		},
 	}
 	body, _ := marshaller.MarshalToString(subscribeCall)
 	logrus.Debug(body)
@@ -70,13 +75,18 @@ func Subscribe() error {
 
 		var event mesosproto.Event
 		jsonpb.UnmarshalString(data, &event)
-		logrus.Debug("Subscribe Got: ", event.String())
+		logrus.Debug("Subscribe Got RAW: ", data)
+		logrus.Info("Subscribe Got: ", event.GetType())
 
 		switch *event.Type {
 		case mesosproto.Event_SUBSCRIBED:
 			logrus.Info("Subscribed")
 			config.FrameworkInfo.Id = event.Subscribed.FrameworkId
 			config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
+
+			// Save framework info
+			persConf, _ := json.Marshal(&config)
+			ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
 
 			// Start the Zookeeper Container
 			startZookeeper(1, 1)
@@ -85,9 +95,9 @@ func Subscribe() error {
 			createZookeeperServerString(1)
 
 			// Start the Kafka Container
-			startKafka(1, 3)
-			startKafka(2, 3)
-			startKafka(3, 3)
+			//startKafka(1, 3)
+			//startKafka(2, 3)
+			//startKafka(3, 3)
 		case mesosproto.Event_UPDATE:
 			logrus.Info("Update", HandleUpdate(&event))
 		case mesosproto.Event_HEARTBEAT:
@@ -109,8 +119,6 @@ func Call(message *mesosproto.Call) error {
 	client.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-
-	logrus.Debug("Call: ", body)
 
 	req, _ := http.NewRequest("POST", "https://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
 	req.SetBasicAuth(config.Username, config.Password)
