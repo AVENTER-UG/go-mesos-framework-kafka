@@ -30,7 +30,3 @@ func V0StatusContainer(w http.ResponseWriter, r *http.Request) {
 
 	w.Write(d)
 }
-
-func waitUntilZookeeperOk() {
-
-}

@@ -13,6 +13,11 @@ func prepareTaskInfoExecuteCommand(agent *mesosproto.AgentID, cmd cfg.Command) (
 
 	newTaskID, _ := util.GenUUID()
 
+	// Save state of the new task
+	tmp := config.State[newTaskID]
+	tmp.Command = cmd
+	config.State[newTaskID] = tmp
+
 	return []*mesosproto.TaskInfo{{
 		Name: &cmd.TaskName,
 		TaskId: &mesosproto.TaskID{
@@ -51,6 +56,11 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 	if cmd.NetworkMode == "bridge" {
 		networkMode = mesosproto.ContainerInfo_DockerInfo_BRIDGE.Enum()
 	}
+
+	// Save state of the new task
+	tmp := config.State[newTaskID]
+	tmp.Command = cmd
+	config.State[newTaskID] = tmp
 
 	if cmd.Shell == true {
 		return []*mesosproto.TaskInfo{{

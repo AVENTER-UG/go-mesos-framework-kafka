@@ -27,6 +27,10 @@ type Config struct {
 	State             map[string]State
 	Domain            string
 	ZookeeperServers  string
+	ZookeeperCount    int
+	ZookeeperMax      int
+	KafkaCount        int
+	KafkaMax          int
 }
 
 // Command is a chan which include all the Information about the started tasks
@@ -48,6 +52,6 @@ type Command struct {
 
 // State will have the state of all tasks stated by this framework
 type State struct {
-	Command Command
+	Command Command                `json:"command"`
 	Status  *mesosproto.TaskStatus `json:"status"`
 }

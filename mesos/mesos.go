@@ -4,10 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -78,6 +76,12 @@ func Subscribe() error {
 		logrus.Debug("Subscribe Got RAW: ", data)
 		logrus.Info("Subscribe Got: ", event.GetType())
 
+		if config.MesosStreamID != "" {
+			// Start the Zookeeper Container
+			startZookeeper()
+			startKafka()
+		}
+
 		switch *event.Type {
 		case mesosproto.Event_SUBSCRIBED:
 			logrus.Info("Subscribed")
@@ -85,19 +89,9 @@ func Subscribe() error {
 			config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
 
 			// Save framework info
-			persConf, _ := json.Marshal(&config)
-			ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
+			//persConf, _ := json.Marshal(&config)
+			//ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
 
-			// Start the Zookeeper Container
-			startZookeeper(1, 1)
-			//startZookeeper(2, 3)
-			//startZookeeper(3, 3)
-			createZookeeperServerString(1)
-
-			// Start the Kafka Container
-			//startKafka(1, 3)
-			//startKafka(2, 3)
-			//startKafka(3, 3)
 		case mesosproto.Event_UPDATE:
 			logrus.Info("Update", HandleUpdate(&event))
 		case mesosproto.Event_HEARTBEAT:
