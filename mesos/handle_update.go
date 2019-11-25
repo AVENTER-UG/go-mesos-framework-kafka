@@ -16,6 +16,12 @@ func HandleUpdate(event *mesosproto.Event) error {
 			Uuid:    update.Status.Uuid,
 		},
 	}
-	return Call(msg)
 
+	// Save state of the task
+	taskId := *update.Status.GetTaskId().Value
+	tmp := config.State[taskId]
+	tmp.Status = update.Status
+	config.State[taskId] = tmp
+
+	return Call(msg)
 }

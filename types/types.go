@@ -49,5 +49,5 @@ type Command struct {
 // State will have the state of all tasks stated by this framework
 type State struct {
 	Command Command
-	State   *mesosproto.TaskState `json:"state"`
+	Status  *mesosproto.TaskStatus `json:"status"`
 }

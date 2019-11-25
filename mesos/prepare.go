@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync/atomic"
 
-	"../proto"
+	mesosproto "../proto"
 	cfg "../types"
 	"git.aventer.biz/AVENTER/util"
 )
@@ -51,11 +51,6 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 	if cmd.NetworkMode == "bridge" {
 		networkMode = mesosproto.ContainerInfo_DockerInfo_BRIDGE.Enum()
 	}
-
-	// Save state of the task
-	state := config.State[newTaskID]
-	state.Command = cmd
-	config.State[newTaskID] = state
 
 	if cmd.Shell == true {
 		return []*mesosproto.TaskInfo{{
