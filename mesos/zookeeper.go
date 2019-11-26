@@ -49,7 +49,7 @@ func startZookeeper() {
 				Value: &sI,
 			}, {
 				Name:  func() *string { x := "ZOO_SERVERS"; return &x }(),
-				Value: getZookeeperServerString(config.ZookeeperCount, config.ZookeeperMax),
+				Value: getZookeeperServerString(config.ZookeeperCount),
 			},
 		}
 
@@ -65,7 +65,8 @@ func startZookeeper() {
 	}
 }
 
-func getZookeeperServerString(id int, max int) *string {
+func getZookeeperServerString(id int) *string {
+	max := config.ZookeeperMax
 	var server string
 	for i := 1; i <= max; i++ {
 		sI := strconv.Itoa(i)
@@ -79,7 +80,8 @@ func getZookeeperServerString(id int, max int) *string {
 	return &server
 }
 
-func createZookeeperServerString(max int) {
+func createZookeeperServerString() {
+	max := config.ZookeeperMax
 	var server string
 	for i := 1; i <= max; i++ {
 		sI := strconv.Itoa(i)

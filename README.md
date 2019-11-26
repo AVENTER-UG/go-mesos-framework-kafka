@@ -26,6 +26,8 @@ go run init.go app.go
 
 Dies startet das Framework. Es wird sich an den Mesos Master anmelden. Nach wenigen Sekunden kann man "kafkaframework" als Eintrag in der Mesos UI sehen. Sobald das Framework erfolgreich gestartet wurde, startet es Zookeeper. Ist Zookeeper erfolgreich gestartet, werden die Kafka Container gestartet.
 
+![Kafka Framework in Mesos](kafka_mesos.gif)
+
 ## Task Status Abfragen
 
 Um den Status eines Tasks über das Framework abzufragen, folgendes Kommando verwenden:

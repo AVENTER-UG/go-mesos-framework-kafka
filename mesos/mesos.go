@@ -79,6 +79,7 @@ func Subscribe() error {
 		if config.MesosStreamID != "" {
 			// Start the Zookeeper Container
 			startZookeeper()
+			createZookeeperServerString()
 			startKafka()
 		}
 

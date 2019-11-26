@@ -24,7 +24,7 @@ func startKafka() {
 	var cmd cfg.Command
 
 	// Get ZookeeperStatus
-	zookeeperState := statusZookeeper(1)
+	zookeeperState := statusZookeeper(config.ZookeeperMax)
 	if zookeeperState == nil {
 		return
 	}
