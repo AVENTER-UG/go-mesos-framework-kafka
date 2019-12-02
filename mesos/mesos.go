@@ -4,12 +4,15 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	mesosproto "../proto"
 	cfg "../types"
@@ -35,6 +38,14 @@ func SetConfig(cfg *cfg.Config) {
 
 // Subscribe to the mesos backend
 func Subscribe() error {
+
+	// Load the old state if its exist
+	frameworkJSON, err := ioutil.ReadFile(config.FrameworkInfoFile)
+	if err == nil {
+		json.Unmarshal([]byte(frameworkJSON), &config)
+		reconcile()
+	}
+
 	subscribeCall := &mesosproto.Call{
 		FrameworkId: config.FrameworkInfo.Id,
 		Type:        mesosproto.Call_SUBSCRIBE.Enum(),
@@ -90,8 +101,8 @@ func Subscribe() error {
 			config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
 
 			// Save framework info
-			//persConf, _ := json.Marshal(&config)
-			//ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
+			persConf, _ := json.Marshal(&config)
+			ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
 
 		case mesosproto.Event_UPDATE:
 			logrus.Info("Update", HandleUpdate(&event))
@@ -134,4 +145,24 @@ func Call(message *mesosproto.Call) error {
 	}
 
 	return fmt.Errorf("Offer Accept %d", res.StatusCode)
+}
+
+func reconcile() {
+	var oldTasks []*mesosproto.Call_Reconcile_Task
+	maxID := 0
+	for _, t := range config.State {
+		oldTasks = append(oldTasks, &mesosproto.Call_Reconcile_Task{
+			TaskId:  t.Status.TaskId,
+			AgentId: t.Status.AgentId,
+		})
+		numericID, err := strconv.Atoi(t.Status.TaskId.GetValue())
+		if err == nil && numericID > maxID {
+			maxID = numericID
+		}
+	}
+	atomic.StoreUint64(&config.TaskID, uint64(maxID))
+	Call(&mesosproto.Call{
+		Type:      mesosproto.Call_RECONCILE.Enum(),
+		Reconcile: &mesosproto.Call_Reconcile{Tasks: oldTasks},
+	})
 }

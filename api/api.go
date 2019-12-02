@@ -24,6 +24,7 @@ func Commands() *mux.Router {
 	rtr.HandleFunc("/v0/cmd/start", V0StartCommand).Methods("POST")
 	rtr.HandleFunc("/v0/container/start", V0StartContainer).Methods("POST")
 	rtr.HandleFunc("/v0/container/{taskID}", V0StatusContainer).Methods("GET")
+	rtr.HandleFunc("/v0/zookeeper/scale/{count}", V0ScaleZookeeper).Methods("POST")
 
 	return rtr
 }

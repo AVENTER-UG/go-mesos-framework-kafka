@@ -23,5 +23,5 @@ func init() {
 	config.ZookeeperCount = 1
 	config.KafkaCount = 1
 
-	config.AppName = "Mesos TestFramework"
+	config.AppName = "Mesos Kafka Framework"
 }

@@ -1,6 +1,9 @@
 package mesos
 
 import (
+	"encoding/json"
+	"io/ioutil"
+
 	mesosproto "../proto"
 )
 
@@ -22,6 +25,10 @@ func HandleUpdate(event *mesosproto.Event) error {
 	tmp := config.State[taskId]
 	tmp.Status = update.Status
 	config.State[taskId] = tmp
+
+	// Update Framework State File
+	persConf, _ := json.Marshal(&config)
+	ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
 
 	return Call(msg)
 }
