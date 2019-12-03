@@ -20,6 +20,8 @@ export LOGLEVEL="DEBUG"
 export DOMAIN="weave.local"
 export ZOOKEEPER_COUNT=1
 export KAFKA_COUNT=3
+export RES_CPU=0.1
+export RES_MEM=3200
 
 go run init.go app.go
 ```
