@@ -9,8 +9,8 @@ import (
 func defaultResources() []*mesosproto.Resource {
 	CPU := "cpus"
 	MEM := "mem"
-	cpu := float64(0.1)
-	mem := float64(3200)
+	cpu := config.ResCPU
+	mem := config.ResMEM
 
 	return []*mesosproto.Resource{
 		{

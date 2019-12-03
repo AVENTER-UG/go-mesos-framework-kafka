@@ -21,7 +21,7 @@ func main() {
 	logrus.Println(config.AppName + " build" + config.MinVersion)
 
 	hostname := fqdn.Get()
-	listen := ":10000"
+	listen := fmt.Sprintf(":%s", config.FrameworkPort)
 
 	logrus.Info(hostname)
 

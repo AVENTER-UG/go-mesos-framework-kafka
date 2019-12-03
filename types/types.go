@@ -31,6 +31,8 @@ type Config struct {
 	ZookeeperMax      int
 	KafkaCount        int
 	KafkaMax          int
+	ResCPU            float64
+	ResMEM            float64
 }
 
 // Command is a chan which include all the Information about the started tasks
