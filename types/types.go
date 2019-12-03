@@ -48,6 +48,9 @@ type Command struct {
 	Environment    mesosproto.Environment        `protobuf:"bytes,2,opt,name=environment" json:"environment,omitempty"`
 	Arguments      []string                      `protobuf:"bytes,7,rep,name=arguments" json:"arguments,omitempty"`
 	Executor       mesosproto.ExecutorInfo
+	InternalID     int
+	IsZookeeper    bool
+	IsKafka        bool
 }
 
 // State will have the state of all tasks stated by this framework

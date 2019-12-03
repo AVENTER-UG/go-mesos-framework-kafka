@@ -3,7 +3,7 @@ package mesos
 import (
 	"github.com/sirupsen/logrus"
 
-	"../proto"
+	mesosproto "../proto"
 )
 
 func defaultResources() []*mesosproto.Resource {
@@ -35,6 +35,7 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 
 	select {
 	case cmd := <-config.CommandChan:
+
 		firstOffer := offers.Offers[0]
 		agentID := offerIds[0].Value
 
@@ -62,7 +63,10 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 					Launch: &mesosproto.Offer_Operation_Launch{
 						TaskInfos: taskInfo,
 					}}}}}
+
 		return Call(accept)
+
+		return nil
 	default:
 		decline := &mesosproto.Call{
 			Type:    mesosproto.Call_DECLINE.Enum(),

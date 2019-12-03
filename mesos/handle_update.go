@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 
 	mesosproto "../proto"
+	"github.com/sirupsen/logrus"
 )
 
 // HandleUpdate will handle the offers event of mesos
@@ -21,12 +22,14 @@ func HandleUpdate(event *mesosproto.Event) error {
 	}
 
 	// Save state of the task
-	taskId := *update.Status.GetTaskId().Value
-	tmp := config.State[taskId]
+	taskID := *update.Status.GetTaskId().Value
+	tmp := config.State[taskID]
 	tmp.Status = update.Status
-	config.State[taskId] = tmp
+
+	logrus.Debug("HandleUpdate: ", update.Status)
 
 	// Update Framework State File
+	config.State[taskID] = tmp
 	persConf, _ := json.Marshal(&config)
 	ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
 

@@ -28,6 +28,10 @@ Dies startet das Framework. Es wird sich an den Mesos Master anmelden. Nach weni
 
 ![Kafka Framework in Mesos](kafka_mesos.gif)
 
+Faellt ein Container aus, wird dieser neugestartet. 
+
+![Kafka Framework in Mesos](kafka_mesos1.gif)
+
 ## Task Status Abfragen
 
 Um den Status eines Tasks über das Framework abzufragen, folgendes Kommando verwenden:

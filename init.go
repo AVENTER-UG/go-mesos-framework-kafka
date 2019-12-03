@@ -10,6 +10,11 @@ import (
 var config cfg.Config
 
 func init() {
+	config.ZookeeperMax = 0
+	config.KafkaMax = 0
+	config.ZookeeperCount = 1
+	config.KafkaCount = 1
+
 	config.FrameworkUser = os.Getenv("FRAMEWORK_USER")
 	config.FrameworkName = os.Getenv("FRAMEWORK_NAME")
 	config.Principal = os.Getenv("MESOS_PRINCIPAL")
@@ -20,8 +25,5 @@ func init() {
 	config.Domain = os.Getenv("DOMAIN")
 	config.ZookeeperMax, _ = strconv.Atoi(os.Getenv("ZOOKEEPER_COUNT"))
 	config.KafkaMax, _ = strconv.Atoi(os.Getenv("KAFKA_COUNT"))
-	config.ZookeeperCount = 1
-	config.KafkaCount = 1
-
 	config.AppName = "Mesos Kafka Framework"
 }

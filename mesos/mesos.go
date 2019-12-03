@@ -84,15 +84,16 @@ func Subscribe() error {
 
 		var event mesosproto.Event
 		jsonpb.UnmarshalString(data, &event)
-		logrus.Debug("Subscribe Got RAW: ", data)
 		logrus.Info("Subscribe Got: ", event.GetType())
 
 		if config.MesosStreamID != "" {
-			// Start the Zookeeper Container
-			startZookeeper()
+			initStartZookeeper()
 			createZookeeperServerString()
-			startKafka()
+			initStartKafka()
 		}
+
+		// restart Failed container
+		restartContainer()
 
 		switch *event.Type {
 		case mesosproto.Event_SUBSCRIBED:
@@ -147,6 +148,7 @@ func Call(message *mesosproto.Call) error {
 	return fmt.Errorf("Offer Accept %d", res.StatusCode)
 }
 
+// If the framework was restartet, we have to reconcile the task states.
 func reconcile() {
 	var oldTasks []*mesosproto.Call_Reconcile_Task
 	maxID := 0
@@ -165,4 +167,45 @@ func reconcile() {
 		Type:      mesosproto.Call_RECONCILE.Enum(),
 		Reconcile: &mesosproto.Call_Reconcile{Tasks: oldTasks},
 	})
+}
+
+// Restart failed zookeeper container
+func restartContainer() {
+	if config.State != nil {
+		for _, element := range config.State {
+			if element.Status != nil {
+				switch *element.Status.State {
+				case mesosproto.TaskState_TASK_FAILED:
+					if element.Command.IsZookeeper == true {
+						logrus.Info("RestartZookeeper: ", element.Status.TaskId)
+						startZookeeper(element.Command.InternalID)
+					}
+					if element.Command.IsKafka == true {
+						logrus.Info("RestartKafka: ", element.Status.TaskId)
+						startKafka(element.Command.InternalID)
+					}
+
+					deleteOldTask(element.Status.TaskId)
+				}
+			}
+		}
+	}
+}
+
+// Delete Failed Tasks from the config
+func deleteOldTask(taskID *mesosproto.TaskID) {
+	copy := make(map[string]cfg.State)
+
+	if config.State != nil {
+		for _, element := range config.State {
+			tmpID := *element.Status.GetTaskId().Value
+			if element.Status.TaskId != taskID {
+				copy[tmpID] = element
+			} else {
+				logrus.Debug("Delete Task from config: ", tmpID)
+			}
+		}
+
+		config.State = copy
+	}
 }
