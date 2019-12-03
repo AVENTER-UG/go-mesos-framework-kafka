@@ -42,3 +42,11 @@ Um den Status eines Tasks über das Framework abzufragen, folgendes Kommando ver
 curl -X GET 127.0.0.1:10000/v0/container/<taskId> -d 'JSON'  | jq
 ```
 
+## Fehlende Kafka oder Zookeeper Starten
+
+Sollte aus bestimmten Gründen der Healthcheck Status im Framework nicht mit der Realität übereinstimmen, kann über den nachfolgenden Aufruf erzwungen werden die fehlenden Container zu starten.
+
+```Bash
+curl -X GET 127.0.0.1:10000/v0/<kafka|zookeeper>/reflate -d 'JSON'
+```
+

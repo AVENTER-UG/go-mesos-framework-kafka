@@ -9,6 +9,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// SearchMissingKafka Check if all kafkas are running. If one is missing, restart it.
+func SearchMissingKafka() {
+	if config.State != nil {
+		for i := 1; i <= config.KafkaMax; i++ {
+			if statusKafka(i) == nil {
+				logrus.Debug("Missing Kafka: ", i)
+				startKafka(i)
+			}
+		}
+	}
+}
+
 // Get out Status of the given kafka ID
 func statusKafka(id int) *cfg.State {
 	if config.State != nil {
@@ -70,10 +82,10 @@ func startKafka(id int) {
 	}
 
 	d, _ := json.Marshal(&cmd)
-	logrus.Debug("Start Container: ", string(d))
+	logrus.Debug("Scheduled Kafka: ", string(d))
 
 	config.CommandChan <- cmd
-	logrus.Info("Scheduled Container: ", cmd.Command)
+	logrus.Info("Scheduled Kafka")
 
 }
 

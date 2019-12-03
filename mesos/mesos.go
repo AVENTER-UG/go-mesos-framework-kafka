@@ -84,7 +84,7 @@ func Subscribe() error {
 
 		var event mesosproto.Event
 		jsonpb.UnmarshalString(data, &event)
-		logrus.Info("Subscribe Got: ", event.GetType())
+		logrus.Debug("Subscribe Got: ", event.GetType())
 
 		if config.MesosStreamID != "" {
 			initStartZookeeper()
@@ -92,27 +92,27 @@ func Subscribe() error {
 			initStartKafka()
 		}
 
-		// restart Failed container
-		restartContainer()
+		if event.Type != nil {
+			switch *event.Type {
+			case mesosproto.Event_SUBSCRIBED:
+				logrus.Info("Subscribed")
+				config.FrameworkInfo.Id = event.Subscribed.FrameworkId
+				config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
 
-		switch *event.Type {
-		case mesosproto.Event_SUBSCRIBED:
-			logrus.Info("Subscribed")
-			config.FrameworkInfo.Id = event.Subscribed.FrameworkId
-			config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
+				// Save framework info
+				persConf, _ := json.Marshal(&config)
+				ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
 
-			// Save framework info
-			persConf, _ := json.Marshal(&config)
-			ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
-
-		case mesosproto.Event_UPDATE:
-			logrus.Info("Update", HandleUpdate(&event))
-		case mesosproto.Event_HEARTBEAT:
-			logrus.Info("Heartbeat")
-		case mesosproto.Event_OFFERS:
-			logrus.Info("Offers Returns: ", HandleOffers(event.Offers))
-		default:
-			logrus.Info("DEFAULT EVENT: ", event.Offers)
+			case mesosproto.Event_UPDATE:
+				logrus.Debug("Update", HandleUpdate(&event))
+			case mesosproto.Event_HEARTBEAT:
+			case mesosproto.Event_OFFERS:
+				logrus.Debug("Offers Returns: ", HandleOffers(event.Offers))
+			default:
+				logrus.Debug("DEFAULT EVENT: ", event.Offers)
+			}
+		} else {
+			logrus.Error("Framework ID is outdated. Please remove the framework state file.")
 		}
 	}
 }
@@ -153,13 +153,15 @@ func reconcile() {
 	var oldTasks []*mesosproto.Call_Reconcile_Task
 	maxID := 0
 	for _, t := range config.State {
-		oldTasks = append(oldTasks, &mesosproto.Call_Reconcile_Task{
-			TaskId:  t.Status.TaskId,
-			AgentId: t.Status.AgentId,
-		})
-		numericID, err := strconv.Atoi(t.Status.TaskId.GetValue())
-		if err == nil && numericID > maxID {
-			maxID = numericID
+		if t.Status != nil {
+			oldTasks = append(oldTasks, &mesosproto.Call_Reconcile_Task{
+				TaskId:  t.Status.TaskId,
+				AgentId: t.Status.AgentId,
+			})
+			numericID, err := strconv.Atoi(t.Status.TaskId.GetValue())
+			if err == nil && numericID > maxID {
+				maxID = numericID
+			}
 		}
 	}
 	atomic.StoreUint64(&config.TaskID, uint64(maxID))
@@ -170,7 +172,7 @@ func reconcile() {
 }
 
 // Restart failed zookeeper container
-func restartContainer() {
+func restartFailedContainer() {
 	if config.State != nil {
 		for _, element := range config.State {
 			if element.Status != nil {
@@ -198,11 +200,13 @@ func deleteOldTask(taskID *mesosproto.TaskID) {
 
 	if config.State != nil {
 		for _, element := range config.State {
-			tmpID := *element.Status.GetTaskId().Value
-			if element.Status.TaskId != taskID {
-				copy[tmpID] = element
-			} else {
-				logrus.Debug("Delete Task from config: ", tmpID)
+			if element.Status != nil {
+				tmpID := *element.Status.GetTaskId().Value
+				if element.Status.TaskId != taskID {
+					copy[tmpID] = element
+				} else {
+					logrus.Debug("Delete Task from config: ", tmpID)
+				}
 			}
 		}
 

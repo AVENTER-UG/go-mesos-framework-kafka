@@ -10,6 +10,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// SearchMissingZookeeper Check if all zookeepers are running. If one is missing, restart it.
+func SearchMissingZookeeper() {
+	if config.State != nil {
+		for i := 1; i <= config.ZookeeperMax; i++ {
+			if statusZookeeper(i) == nil {
+				logrus.Debug("Missing Zookeeper: ", i)
+				statusZookeeper(i)
+			}
+		}
+	}
+}
+
 // Get out Status of the given zookeeper ID
 func statusZookeeper(id int) *cfg.State {
 	if config.State != nil {
@@ -29,8 +41,16 @@ func startZookeeper(id int) {
 
 	status := statusZookeeper(id)
 	if status != nil {
+		if status.Status.State == mesosproto.TaskState_TASK_STAGING.Enum() {
+			logrus.Info("startZookeeper: zookeeper is staging ", id)
+			return
+		}
+		if status.Status.State == mesosproto.TaskState_TASK_STARTING.Enum() {
+			logrus.Info("startZookeeper: zookeeper is starting ", id)
+			return
+		}
 		if status.Status.State == mesosproto.TaskState_TASK_RUNNING.Enum() {
-			logrus.Info("startZookeper: zookeeper already running ", id)
+			logrus.Info("startZookeeper: zookeeper already running ", id)
 			return
 		}
 	}
@@ -56,10 +76,10 @@ func startZookeeper(id int) {
 	cmd.Hostname = "zookeeper" + strconv.Itoa(id) + "." + config.Domain
 
 	d, _ := json.Marshal(&cmd)
-	logrus.Debug("Start Container: ", string(d))
+	logrus.Debug("Scheduled Zookeeper: ", string(d))
 
 	config.CommandChan <- cmd
-	logrus.Info("Scheduled Container")
+	logrus.Info("Scheduled Zookeeper")
 }
 
 // Start a zookeeper container, but only if the foreunner  zookeeper is in the running state
@@ -91,7 +111,7 @@ func createZookeeperServerString() {
 	var server string
 	for i := 1; i <= max; i++ {
 		sI := strconv.Itoa(i)
-		server += "zookeeper" + sI + "." + config.Domain + ":2181 "
+		server += "zookeeper" + sI + "." + config.Domain + ":2181, "
 	}
 
 	config.ZookeeperServers = server

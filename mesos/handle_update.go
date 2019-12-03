@@ -28,6 +28,11 @@ func HandleUpdate(event *mesosproto.Event) error {
 
 	logrus.Debug("HandleUpdate: ", update.Status)
 
+	switch *update.Status.State {
+	case mesosproto.TaskState_TASK_FAILED:
+		restartFailedContainer()
+	}
+
 	// Update Framework State File
 	config.State[taskID] = tmp
 	persConf, _ := json.Marshal(&config)
