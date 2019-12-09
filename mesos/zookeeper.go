@@ -36,9 +36,11 @@ func statusZookeeper(id int) *cfg.State {
 	return nil
 }
 
+// Start a zookeeper container with the given ID
 func startZookeeper(id int) {
 	var cmd cfg.Command
 
+	// before we will start a new zookeeper, we should be sure its not already running
 	status := statusZookeeper(id)
 	if status != nil {
 		if status.Status.State == mesosproto.TaskState_TASK_STAGING.Enum() {
@@ -82,19 +84,20 @@ func startZookeeper(id int) {
 	logrus.Info("Scheduled Zookeeper")
 }
 
-// Start a zookeeper container, but only if the foreunner  zookeeper is in the running state
+// The first run have to be in a right sequence
 func initStartZookeeper() {
-	if config.ZookeeperCount <= config.ZookeeperMax {
+	if config.ZookeeperCount <= (config.ZookeeperMax - 1) {
 		startZookeeper(config.ZookeeperCount)
 
 		config.ZookeeperCount++
 	}
 }
 
+// create the zookeeper connection string for every zookeeper container
 func getZookeeperServerString(id int) *string {
 	max := config.ZookeeperMax
 	var server string
-	for i := 1; i <= max; i++ {
+	for i := 0; i < max; i++ {
 		sI := strconv.Itoa(i)
 		if i == id {
 			server += "server." + sI + "=0.0.0.0:2888:3888;2181 "
@@ -106,10 +109,11 @@ func getZookeeperServerString(id int) *string {
 	return &server
 }
 
+// create the zookeeper connection string for every kafka container
 func createZookeeperServerString() {
 	max := config.ZookeeperMax
 	var server string
-	for i := 1; i <= max; i++ {
+	for i := 0; i < max; i++ {
 		sI := strconv.Itoa(i)
 		server += "zookeeper" + sI + "." + config.Domain + ":2181, "
 	}

@@ -12,8 +12,8 @@ var config cfg.Config
 func init() {
 	config.ZookeeperMax = 0
 	config.KafkaMax = 0
-	config.ZookeeperCount = 1
-	config.KafkaCount = 1
+	config.ZookeeperCount = 0
+	config.KafkaCount = 0
 
 	config.FrameworkUser = os.Getenv("FRAMEWORK_USER")
 	config.FrameworkName = os.Getenv("FRAMEWORK_NAME")

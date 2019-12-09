@@ -35,11 +35,21 @@ func statusKafka(id int) *cfg.State {
 	return nil
 }
 
+// start kafka with the given id
 func startKafka(id int) {
 	var cmd cfg.Command
 
+	// be sure, that there is no kafka with this id already running
 	status := statusKafka(id)
 	if status != nil {
+		if status.Status.State == mesosproto.TaskState_TASK_STAGING.Enum() {
+			logrus.Info("startKafka: kafka is staging ", id)
+			return
+		}
+		if status.Status.State == mesosproto.TaskState_TASK_STARTING.Enum() {
+			logrus.Info("startKafka: kafka is starting ", id)
+			return
+		}
 		if status.Status.State == mesosproto.TaskState_TASK_RUNNING.Enum() {
 			logrus.Info("startKafka: kafka already running ", id)
 			return
@@ -89,14 +99,15 @@ func startKafka(id int) {
 
 }
 
+// the first run should be in ta strict order.
 func initStartKafka() {
-	// Get ZookeeperStatus
-	zookeeperState := statusZookeeper(config.ZookeeperMax)
+	// Start kafka only if the zookeeper is running
+	zookeeperState := statusZookeeper(config.ZookeeperMax - 1)
 	if zookeeperState == nil {
 		return
 	}
 
-	if config.KafkaCount <= config.KafkaMax && zookeeperState.Status.GetState() == 1 {
+	if config.KafkaCount <= (config.KafkaMax-1) && zookeeperState.Status.GetState() == 1 {
 		startKafka(config.KafkaCount)
 
 		config.KafkaCount++

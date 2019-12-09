@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -17,7 +18,12 @@ func V0ScaleZookeeper(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	d := []byte("{}")
+	d := []byte("{\"nok\"}")
+
+	if vars["count"] != "" {
+		config.ZookeeperMax, _ = strconv.Atoi(vars["count"])
+		d = []byte("{\"ok\"}")
+	}
 
 	logrus.Debug("HTTP GET V0ScaleZookeeper: ", string(d))
 
