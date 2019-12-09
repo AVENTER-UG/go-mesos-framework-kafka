@@ -12,9 +12,11 @@ import (
 // SearchMissingKafka Check if all kafkas are running. If one is missing, restart it.
 func SearchMissingKafka() {
 	if config.State != nil {
-		for i := 1; i <= config.KafkaMax; i++ {
-			if statusKafka(i) == nil {
+		for i := 0; i < config.KafkaMax; i++ {
+			state := *statusKafka(i).Status.State
+			if state != mesosproto.TaskState_TASK_RUNNING {
 				logrus.Debug("Missing Kafka: ", i)
+				CreateZookeeperServerString()
 				startKafka(i)
 			}
 		}

@@ -25,12 +25,11 @@ func V0ScaleZookeeper(w http.ResponseWriter, r *http.Request) {
 	if vars["count"] != "" {
 		newCount, _ := strconv.Atoi(vars["count"])
 		oldCount := config.ZookeeperMax
+		config.ZookeeperMax = newCount
 		i := (newCount - oldCount) * -1
+
 		// Scale Up
 		if newCount > oldCount {
-
-			config.ZookeeperMax = newCount
-
 			logrus.Info("Zookeeper Scale Up ", i)
 			for x := oldCount; x < newCount; x++ {
 				mesos.GetZookeeperServerString(x)
@@ -45,13 +44,14 @@ func V0ScaleZookeeper(w http.ResponseWriter, r *http.Request) {
 			for x := newCount; x < oldCount; x++ {
 				task := mesos.StatusZookeeper(x)
 				id := *task.Status.TaskId.Value
-				mesos.Kill(id)
+				ret := mesos.Kill(id)
+
+				logrus.Info("V0TaskKill: ", ret)
+				config.ZookeeperCount--
 			}
 		}
 
-		config.ZookeeperMax = newCount
-
-		d = []byte(strconv.Itoa(config.ZookeeperMax))
+		d = []byte(strconv.Itoa(newCount - oldCount))
 	}
 
 	logrus.Debug("HTTP GET V0ScaleZookeeper: ", string(d))

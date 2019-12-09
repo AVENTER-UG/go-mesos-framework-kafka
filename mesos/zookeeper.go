@@ -13,10 +13,12 @@ import (
 // SearchMissingZookeeper Check if all zookeepers are running. If one is missing, restart it.
 func SearchMissingZookeeper() {
 	if config.State != nil {
-		for i := 1; i <= config.ZookeeperMax; i++ {
-			if StatusZookeeper(i) == nil {
+		for i := 0; i < config.ZookeeperMax; i++ {
+			state := *StatusZookeeper(i).Status.State
+			if state != mesosproto.TaskState_TASK_RUNNING {
 				logrus.Debug("Missing Zookeeper: ", i)
-				StatusZookeeper(i)
+				GetZookeeperServerString(i)
+				StartZookeeper(i)
 			}
 		}
 	}
@@ -82,6 +84,8 @@ func StartZookeeper(id int) {
 
 	config.CommandChan <- cmd
 	logrus.Info("Scheduled Zookeeper")
+
+	config.ZookeeperCount++
 }
 
 // The first run have to be in a right sequence
