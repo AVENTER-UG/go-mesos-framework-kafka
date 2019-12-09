@@ -11,3 +11,4 @@
 - Add multinode support
 - Add container monitor to restart if a container failed
 - Add RestCall to reflate missing zookeeper and kafka processes, for the case the monitoring can not find the problem
+- Add RestCall scale up for zookeeper

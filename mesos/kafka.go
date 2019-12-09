@@ -102,7 +102,7 @@ func startKafka(id int) {
 // the first run should be in ta strict order.
 func initStartKafka() {
 	// Start kafka only if the zookeeper is running
-	zookeeperState := statusZookeeper(config.ZookeeperMax - 1)
+	zookeeperState := StatusZookeeper(config.ZookeeperMax - 1)
 	if zookeeperState == nil {
 		return
 	}

@@ -31,6 +31,8 @@ func HandleUpdate(event *mesosproto.Event) error {
 	switch *update.Status.State {
 	case mesosproto.TaskState_TASK_FAILED:
 		restartFailedContainer()
+	case mesosproto.TaskState_TASK_KILLED:
+		deleteOldTask(tmp.Status.TaskId)
 	}
 
 	// Update Framework State File

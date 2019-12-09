@@ -14,16 +14,16 @@ import (
 func SearchMissingZookeeper() {
 	if config.State != nil {
 		for i := 1; i <= config.ZookeeperMax; i++ {
-			if statusZookeeper(i) == nil {
+			if StatusZookeeper(i) == nil {
 				logrus.Debug("Missing Zookeeper: ", i)
-				statusZookeeper(i)
+				StatusZookeeper(i)
 			}
 		}
 	}
 }
 
-// Get out Status of the given zookeeper ID
-func statusZookeeper(id int) *cfg.State {
+// StatusZookeeper Get out Status of the given zookeeper ID
+func StatusZookeeper(id int) *cfg.State {
 	if config.State != nil {
 		for _, element := range config.State {
 			if element.Status != nil {
@@ -36,12 +36,12 @@ func statusZookeeper(id int) *cfg.State {
 	return nil
 }
 
-// Start a zookeeper container with the given ID
-func startZookeeper(id int) {
+// StartZookeeper is starting a zookeeper container with the given IDs
+func StartZookeeper(id int) {
 	var cmd cfg.Command
 
 	// before we will start a new zookeeper, we should be sure its not already running
-	status := statusZookeeper(id)
+	status := StatusZookeeper(id)
 	if status != nil {
 		if status.Status.State == mesosproto.TaskState_TASK_STAGING.Enum() {
 			logrus.Info("startZookeeper: zookeeper is staging ", id)
@@ -71,7 +71,7 @@ func startZookeeper(id int) {
 			Value: &sI,
 		}, {
 			Name:  func() *string { x := "ZOO_SERVERS"; return &x }(),
-			Value: getZookeeperServerString(id),
+			Value: GetZookeeperServerString(id),
 		},
 	}
 
@@ -87,14 +87,14 @@ func startZookeeper(id int) {
 // The first run have to be in a right sequence
 func initStartZookeeper() {
 	if config.ZookeeperCount <= (config.ZookeeperMax - 1) {
-		startZookeeper(config.ZookeeperCount)
+		StartZookeeper(config.ZookeeperCount)
 
 		config.ZookeeperCount++
 	}
 }
 
-// create the zookeeper connection string for every zookeeper container
-func getZookeeperServerString(id int) *string {
+// GetZookeeperServerString create the zookeeper connection string for every zookeeper container
+func GetZookeeperServerString(id int) *string {
 	max := config.ZookeeperMax
 	var server string
 	for i := 0; i < max; i++ {
@@ -109,8 +109,8 @@ func getZookeeperServerString(id int) *string {
 	return &server
 }
 
-// create the zookeeper connection string for every kafka container
-func createZookeeperServerString() {
+// CreateZookeeperServerString create the zookeeper connection string for every kafka container
+func CreateZookeeperServerString() {
 	max := config.ZookeeperMax
 	var server string
 	for i := 0; i < max; i++ {

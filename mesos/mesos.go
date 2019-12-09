@@ -88,7 +88,7 @@ func Subscribe() error {
 
 		if config.MesosStreamID != "" {
 			initStartZookeeper()
-			createZookeeperServerString()
+			CreateZookeeperServerString()
 			initStartKafka()
 		}
 
@@ -180,7 +180,7 @@ func restartFailedContainer() {
 				case mesosproto.TaskState_TASK_FAILED:
 					if element.Command.IsZookeeper == true {
 						logrus.Info("RestartZookeeper: ", element.Status.TaskId)
-						startZookeeper(element.Command.InternalID)
+						StartZookeeper(element.Command.InternalID)
 					}
 					if element.Command.IsKafka == true {
 						logrus.Info("RestartKafka: ", element.Status.TaskId)
@@ -212,4 +212,19 @@ func deleteOldTask(taskID *mesosproto.TaskID) {
 
 		config.State = copy
 	}
+}
+
+// Kill a Task with the given taskID
+func Kill(taskID string) error {
+	task := config.State[taskID]
+
+	logrus.Debug("Kill task %s [%#v]", taskID, task)
+
+	return Call(&mesosproto.Call{
+		Type: mesosproto.Call_KILL.Enum(),
+		Kill: &mesosproto.Call_Kill{
+			TaskId:  task.Status.TaskId,
+			AgentId: task.Status.AgentId,
+		},
+	})
 }
