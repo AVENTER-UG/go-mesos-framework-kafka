@@ -14,11 +14,13 @@ import (
 func SearchMissingZookeeper() {
 	if config.State != nil {
 		for i := 0; i < config.ZookeeperMax; i++ {
-			state := *StatusZookeeper(i).Status.State
-			if state != mesosproto.TaskState_TASK_RUNNING {
-				logrus.Debug("Missing Zookeeper: ", i)
-				GetZookeeperServerString(i)
-				StartZookeeper(i)
+			state := StatusZookeeper(i)
+			if state != nil {
+				if *state.Status.State != mesosproto.TaskState_TASK_RUNNING {
+					logrus.Debug("Missing Zookeeper: ", i)
+					GetZookeeperServerString(i)
+					StartZookeeper(i)
+				}
 			}
 		}
 	}
@@ -84,8 +86,6 @@ func StartZookeeper(id int) {
 
 	config.CommandChan <- cmd
 	logrus.Info("Scheduled Zookeeper")
-
-	config.ZookeeperCount++
 }
 
 // The first run have to be in a right sequence

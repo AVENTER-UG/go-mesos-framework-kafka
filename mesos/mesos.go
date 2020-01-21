@@ -107,6 +107,7 @@ func Subscribe() error {
 				logrus.Debug("Update", HandleUpdate(&event))
 			case mesosproto.Event_HEARTBEAT:
 			case mesosproto.Event_OFFERS:
+				restartFailedContainer()
 				logrus.Debug("Offers Returns: ", HandleOffers(event.Offers))
 			default:
 				logrus.Debug("DEFAULT EVENT: ", event.Offers)
@@ -176,6 +177,7 @@ func restartFailedContainer() {
 	if config.State != nil {
 		for _, element := range config.State {
 			if element.Status != nil {
+				logrus.Debug("restartFailedContainer: ", *element.Status.State, element.Status.TaskId)
 				switch *element.Status.State {
 				case mesosproto.TaskState_TASK_FAILED:
 					if element.Command.IsZookeeper == true {

@@ -1,5 +1,8 @@
 # go-mesos-framework-kafka
 
+<a href="https://liberapay.com/mesos" target="_new"><img src="https://img.shields.io/liberapay/receives/AVENTER.svg?logo=liberapay"></a>
+
+
 Dies ist ein Kafka Framework für Apache Mesos
 
 ## Vorraussetzung
@@ -30,7 +33,7 @@ Dies startet das Framework. Es wird sich an den Mesos Master anmelden. Nach weni
 
 ![Kafka Framework in Mesos](kafka_mesos.gif)
 
-Faellt ein Container aus, wird dieser neugestartet. 
+Faellt ein Container aus, wird dieser neugestartet.
 
 ![Kafka Framework in Mesos](kafka_mesos1.gif)
 
