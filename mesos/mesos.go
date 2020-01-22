@@ -188,7 +188,12 @@ func restartFailedContainer() {
 						logrus.Info("RestartKafka: ", element.Status.TaskId)
 						StartKafka(element.Command.InternalID)
 					}
-
+					deleteOldTask(element.Status.TaskId)
+				case mesosproto.TaskState_TASK_KILLED:
+					deleteOldTask(element.Status.TaskId)
+				case mesosproto.TaskState_TASK_LOST:
+					deleteOldTask(element.Status.TaskId)
+				case mesosproto.TaskState_TASK_ERROR:
 					deleteOldTask(element.Status.TaskId)
 				}
 			}
