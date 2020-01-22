@@ -186,7 +186,7 @@ func restartFailedContainer() {
 					}
 					if element.Command.IsKafka == true {
 						logrus.Info("RestartKafka: ", element.Status.TaskId)
-						startKafka(element.Command.InternalID)
+						StartKafka(element.Command.InternalID)
 					}
 
 					deleteOldTask(element.Status.TaskId)

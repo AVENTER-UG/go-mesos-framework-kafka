@@ -26,6 +26,7 @@ func Commands() *mux.Router {
 	rtr.HandleFunc("/v0/container/{taskID}", V0StatusContainer).Methods("GET")
 	rtr.HandleFunc("/v0/zookeeper/scale/{count}", V0ScaleZookeeper).Methods("GET")
 	rtr.HandleFunc("/v0/zookeeper/reflate", V0ReflateZookeeper).Methods("GET")
+	rtr.HandleFunc("/v0/kafka/scale/{count}", V0ScaleKafka).Methods("GET")
 	rtr.HandleFunc("/v0/kafka/reflate", V0ReflateKafka).Methods("GET")
 	rtr.HandleFunc("/v0/task/kill/{id}", V0KillTask).Methods("GET")
 

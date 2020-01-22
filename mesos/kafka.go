@@ -13,18 +13,18 @@ import (
 func SearchMissingKafka() {
 	if config.State != nil {
 		for i := 0; i < config.KafkaMax; i++ {
-			state := *statusKafka(i).Status.State
+			state := *StatusKafka(i).Status.State
 			if state != mesosproto.TaskState_TASK_RUNNING {
 				logrus.Debug("Missing Kafka: ", i)
 				CreateZookeeperServerString()
-				startKafka(i)
+				StartKafka(i)
 			}
 		}
 	}
 }
 
 // Get out Status of the given kafka ID
-func statusKafka(id int) *cfg.State {
+func StatusKafka(id int) *cfg.State {
 	if config.State != nil {
 		for _, element := range config.State {
 			if element.Status != nil {
@@ -38,11 +38,11 @@ func statusKafka(id int) *cfg.State {
 }
 
 // start kafka with the given id
-func startKafka(id int) {
+func StartKafka(id int) {
 	var cmd cfg.Command
 
 	// be sure, that there is no kafka with this id already running
-	status := statusKafka(id)
+	status := StatusKafka(id)
 	if status != nil {
 		if status.Status.State == mesosproto.TaskState_TASK_STAGING.Enum() {
 			logrus.Info("startKafka: kafka is staging ", id)
@@ -110,7 +110,7 @@ func initStartKafka() {
 	}
 
 	if config.KafkaCount <= (config.KafkaMax-1) && zookeeperState.Status.GetState() == 1 {
-		startKafka(config.KafkaCount)
+		StartKafka(config.KafkaCount)
 
 		config.KafkaCount++
 	}
