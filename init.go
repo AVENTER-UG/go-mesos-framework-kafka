@@ -18,6 +18,7 @@ func init() {
 	config.FrameworkUser = os.Getenv("FRAMEWORK_USER")
 	config.FrameworkName = os.Getenv("FRAMEWORK_NAME")
 	config.FrameworkPort = os.Getenv("FRAMEWORK_PORT")
+	config.FrameworkInfoFilePath = os.Getenv("FRAMEWORK_STATEFILE_PATH")
 	config.Principal = os.Getenv("MESOS_PRINCIPAL")
 	config.Username = os.Getenv("MESOS_USERNAME")
 	config.Password = os.Getenv("MESOS_PASSWORD")

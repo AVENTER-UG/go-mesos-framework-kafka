@@ -4,35 +4,36 @@ import mesosproto "../proto"
 
 // Config is a struct of the framework configuration
 type Config struct {
-	FrameworkPort     string
-	FrameworkBind     string
-	FrameworkUser     string
-	FrameworkName     string
-	FrameworkInfo     mesosproto.FrameworkInfo
-	FrameworkInfoFile string
-	Principal         string
-	Username          string
-	Password          string
-	MesosMasterServer string
-	MesosStreamID     string
-	TaskID            uint64
-	SSL               bool
-	LogLevel          string
-	MinVersion        string
-	AppName           string
-	EnableSyslog      bool
-	Hostname          string
-	Listen            string
-	CommandChan       chan Command `json:"-"`
-	State             map[string]State
-	Domain            string
-	ZookeeperServers  string
-	ZookeeperCount    int
-	ZookeeperMax      int
-	KafkaCount        int
-	KafkaMax          int
-	ResCPU            float64
-	ResMEM            float64
+	FrameworkPort         string
+	FrameworkBind         string
+	FrameworkUser         string
+	FrameworkName         string
+	FrameworkInfo         mesosproto.FrameworkInfo
+	FrameworkInfoFile     string
+	FrameworkInfoFilePath string
+	Principal             string
+	Username              string
+	Password              string
+	MesosMasterServer     string
+	MesosStreamID         string
+	TaskID                uint64
+	SSL                   bool
+	LogLevel              string
+	MinVersion            string
+	AppName               string
+	EnableSyslog          bool
+	Hostname              string
+	Listen                string
+	CommandChan           chan Command `json:"-"`
+	State                 map[string]State
+	Domain                string
+	ZookeeperServers      string
+	ZookeeperCount        int
+	ZookeeperMax          int
+	KafkaCount            int
+	KafkaMax              int
+	ResCPU                float64
+	ResMEM                float64
 }
 
 // Command is a chan which include all the Information about the started tasks

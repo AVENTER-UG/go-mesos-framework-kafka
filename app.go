@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
 
 	"./api"
 	"./mesos"
@@ -29,7 +28,7 @@ func main() {
 	checkpoint := true
 	webuiurl := fmt.Sprintf("http://%s%s", hostname, listen)
 
-	config.FrameworkInfoFile = fmt.Sprintf("%s/%s", os.TempDir(), "framework.json")
+	config.FrameworkInfoFile = fmt.Sprintf("%s/%s", config.FrameworkInfoFilePath, "framework.json")
 	config.CommandChan = make(chan cfg.Command, 100)
 	config.Hostname = hostname
 	config.Listen = listen
