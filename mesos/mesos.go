@@ -39,13 +39,6 @@ func SetConfig(cfg *cfg.Config) {
 // Subscribe to the mesos backend
 func Subscribe() error {
 
-	// Load the old state if its exist
-	frameworkJSON, err := ioutil.ReadFile(config.FrameworkInfoFile)
-	if err == nil {
-		json.Unmarshal([]byte(frameworkJSON), &config)
-		reconcile()
-	}
-
 	subscribeCall := &mesosproto.Call{
 		FrameworkId: config.FrameworkInfo.Id,
 		Type:        mesosproto.Call_SUBSCRIBE.Enum(),
@@ -150,7 +143,7 @@ func Call(message *mesosproto.Call) error {
 }
 
 // If the framework was restartet, we have to reconcile the task states.
-func reconcile() {
+func Reconcile() {
 	var oldTasks []*mesosproto.Call_Reconcile_Task
 	maxID := 0
 	for _, t := range config.State {

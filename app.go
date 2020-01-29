@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	_ "net/http/pprof"
 
@@ -46,6 +48,13 @@ func main() {
 	config.FrameworkInfo.Principal = &config.Principal
 	config.FrameworkInfo.Capabilities = []*mesosproto.FrameworkInfo_Capability{
 		{Type: mesosproto.FrameworkInfo_Capability_RESERVATION_REFINEMENT.Enum()},
+	}
+
+	// Load the old state if its exist
+	frameworkJSON, err := ioutil.ReadFile(config.FrameworkInfoFile)
+	if err == nil {
+		json.Unmarshal([]byte(frameworkJSON), &config)
+		mesos.Reconcile()
 	}
 
 	mesos.SetConfig(&config)
