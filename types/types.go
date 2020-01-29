@@ -34,6 +34,7 @@ type Config struct {
 	KafkaMax              int
 	ResCPU                float64
 	ResMEM                float64
+	Credentials           UserCredentials
 }
 
 // Command is a chan which include all the Information about the started tasks
@@ -60,4 +61,10 @@ type Command struct {
 type State struct {
 	Command Command                `json:"command"`
 	Status  *mesosproto.TaskStatus `json:"status"`
+}
+
+// UserCredentials - The Username and Password to authenticate against this framework
+type UserCredentials struct {
+	Username string
+	Password string
 }

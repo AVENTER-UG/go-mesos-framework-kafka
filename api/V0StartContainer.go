@@ -26,6 +26,12 @@ import (
 }
 */
 func V0StartContainer(w http.ResponseWriter, r *http.Request) {
+	auth := CheckAuth(r, w)
+
+	if !auth {
+		return
+	}
+
 	var cmd cfg.Command
 	err := json.NewDecoder(r.Body).Decode(&cmd)
 	cmd.ContainerType = "DOCKER"

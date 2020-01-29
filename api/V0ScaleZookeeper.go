@@ -15,8 +15,9 @@ import (
 // curl -X GET 127.0.0.1:10000/v0/zookeeper/scale/{count of instances} -d 'JSON'
 func V0ScaleZookeeper(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	auth := CheckAuth(r, w)
 
-	if vars == nil {
+	if vars == nil || !auth {
 		return
 	}
 

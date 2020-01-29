@@ -15,8 +15,9 @@ import (
 // curl -X GET 127.0.0.1:10000/v0/kafka/scale/{count of instances} -d 'JSON'
 func V0ScaleKafka(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	auth := CheckAuth(r, w)
 
-	if vars == nil {
+	if vars == nil || !auth {
 		return
 	}
 

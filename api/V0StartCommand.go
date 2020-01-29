@@ -11,6 +11,12 @@ import (
 // example:
 // curl -X POST 127.0.0.1:10000/v0/cmd/start\?cmd\=python%20-m%20SimpleHTTPServer%209033\&shell=true/false
 func V0StartCommand(w http.ResponseWriter, r *http.Request) {
+	auth := CheckAuth(r, w)
+
+	if !auth {
+		return
+	}
+
 	r.ParseForm()
 	var cmd cfg.Command
 	cmd.Command = r.Form["cmd"][0]

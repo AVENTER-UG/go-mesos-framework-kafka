@@ -29,5 +29,7 @@ func init() {
 	config.KafkaMax, _ = strconv.Atoi(os.Getenv("KAFKA_COUNT"))
 	config.ResCPU, _ = strconv.ParseFloat(os.Getenv("RES_CPU"), 64)
 	config.ResMEM, _ = strconv.ParseFloat(os.Getenv("RES_MEM"), 64)
+	config.Credentials.Username = os.Getenv("AUTH_USERNAME")
+	config.Credentials.Password = os.Getenv("AUTH_PASSWORD")
 	config.AppName = "Mesos Kafka Framework"
 }
