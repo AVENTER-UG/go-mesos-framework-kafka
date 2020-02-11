@@ -3,14 +3,14 @@ package mesos
 import (
 	"github.com/sirupsen/logrus"
 
-	"../proto"
+	mesosproto "../proto"
 )
 
 func defaultResources() []*mesosproto.Resource {
 	CPU := "cpus"
 	MEM := "mem"
-	cpu := float64(0.1)
-	mem := float64(3200)
+	cpu := config.ResCPU
+	mem := config.ResMEM
 
 	return []*mesosproto.Resource{
 		{
@@ -35,6 +35,7 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 
 	select {
 	case cmd := <-config.CommandChan:
+
 		firstOffer := offers.Offers[0]
 		agentID := offerIds[0].Value
 
@@ -62,8 +63,11 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 					Launch: &mesosproto.Offer_Operation_Launch{
 						TaskInfos: taskInfo,
 					}}}}}
+
+		logrus.Debug("Offer Accept")
 		return Call(accept)
 	default:
+		logrus.Debug("Offer Decline")
 		decline := &mesosproto.Call{
 			Type:    mesosproto.Call_DECLINE.Enum(),
 			Decline: &mesosproto.Call_Decline{OfferIds: offerIds},

@@ -4,12 +4,15 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	mesosproto "../proto"
 	cfg "../types"
@@ -35,6 +38,7 @@ func SetConfig(cfg *cfg.Config) {
 
 // Subscribe to the mesos backend
 func Subscribe() error {
+
 	subscribeCall := &mesosproto.Call{
 		FrameworkId: config.FrameworkInfo.Id,
 		Type:        mesosproto.Call_SUBSCRIBE.Enum(),
@@ -48,7 +52,12 @@ func Subscribe() error {
 	client.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	req, _ := http.NewRequest("POST", "https://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
+
+	protocol := "https"
+	if config.MesosSSL == false {
+		protocol = "http"
+	}
+	req, _ := http.NewRequest("POST", protocol+"://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
 	req.SetBasicAuth(config.Username, config.Password)
 	req.Header.Set("Content-Type", "application/json")
 	res, err := client.Do(req)
@@ -73,34 +82,36 @@ func Subscribe() error {
 
 		var event mesosproto.Event
 		jsonpb.UnmarshalString(data, &event)
-		logrus.Debug("Subscribe Got RAW: ", data)
-		logrus.Info("Subscribe Got: ", event.GetType())
+		logrus.Debug("Subscribe Got: ", event.GetType())
 
 		if config.MesosStreamID != "" {
-			// Start the Zookeeper Container
-			startZookeeper()
-			createZookeeperServerString()
-			startKafka()
+			initStartZookeeper()
+			CreateZookeeperServerString()
+			initStartKafka()
 		}
 
-		switch *event.Type {
-		case mesosproto.Event_SUBSCRIBED:
-			logrus.Info("Subscribed")
-			config.FrameworkInfo.Id = event.Subscribed.FrameworkId
-			config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
+		if event.Type != nil {
+			switch *event.Type {
+			case mesosproto.Event_SUBSCRIBED:
+				logrus.Info("Subscribed")
+				config.FrameworkInfo.Id = event.Subscribed.FrameworkId
+				config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
 
-			// Save framework info
-			//persConf, _ := json.Marshal(&config)
-			//ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
+				// Save framework info
+				persConf, _ := json.Marshal(&config)
+				ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
 
-		case mesosproto.Event_UPDATE:
-			logrus.Info("Update", HandleUpdate(&event))
-		case mesosproto.Event_HEARTBEAT:
-			logrus.Info("Heartbeat")
-		case mesosproto.Event_OFFERS:
-			logrus.Info("Offers Returns: ", HandleOffers(event.Offers))
-		default:
-			logrus.Info("DEFAULT EVENT: ", event.Offers)
+			case mesosproto.Event_UPDATE:
+				logrus.Debug("Update", HandleUpdate(&event))
+			case mesosproto.Event_HEARTBEAT:
+			case mesosproto.Event_OFFERS:
+				restartFailedContainer()
+				logrus.Debug("Offers Returns: ", HandleOffers(event.Offers))
+			default:
+				logrus.Debug("DEFAULT EVENT: ", event.Offers)
+			}
+		} else {
+			logrus.Error("Framework ID is outdated. Please remove the framework state file.")
 		}
 	}
 }
@@ -115,7 +126,11 @@ func Call(message *mesosproto.Call) error {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
-	req, _ := http.NewRequest("POST", "https://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
+	protocol := "https"
+	if config.MesosSSL == false {
+		protocol = "http"
+	}
+	req, _ := http.NewRequest("POST", protocol+"://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
 	req.SetBasicAuth(config.Username, config.Password)
 	req.Header.Set("Mesos-Stream-Id", config.MesosStreamID)
 	req.Header.Set("Content-Type", "application/json")
@@ -127,11 +142,99 @@ func Call(message *mesosproto.Call) error {
 
 	defer res.Body.Close()
 
-	io.Copy(os.Stderr, res.Body)
-
 	if res.StatusCode != 202 {
+		io.Copy(os.Stderr, res.Body)
 		return fmt.Errorf("Error %d", res.StatusCode)
 	}
 
-	return fmt.Errorf("Offer Accept %d", res.StatusCode)
+	return nil
+}
+
+// Reconcile will reconcile the task states after the framework was restarted
+func Reconcile() {
+	var oldTasks []*mesosproto.Call_Reconcile_Task
+	maxID := 0
+	if config != nil {
+		for _, t := range config.State {
+			if t.Status != nil {
+				oldTasks = append(oldTasks, &mesosproto.Call_Reconcile_Task{
+					TaskId:  t.Status.TaskId,
+					AgentId: t.Status.AgentId,
+				})
+				numericID, err := strconv.Atoi(t.Status.TaskId.GetValue())
+				if err == nil && numericID > maxID {
+					maxID = numericID
+				}
+			}
+		}
+		atomic.StoreUint64(&config.TaskID, uint64(maxID))
+		Call(&mesosproto.Call{
+			Type:      mesosproto.Call_RECONCILE.Enum(),
+			Reconcile: &mesosproto.Call_Reconcile{Tasks: oldTasks},
+		})
+	}
+}
+
+// Restart failed zookeeper container
+func restartFailedContainer() {
+	if config.State != nil {
+		for _, element := range config.State {
+			if element.Status != nil {
+				logrus.Debug("restartFailedContainer: ", *element.Status.State, element.Status.TaskId)
+				switch *element.Status.State {
+				case mesosproto.TaskState_TASK_FAILED:
+					if element.Command.IsZookeeper == true {
+						logrus.Info("RestartZookeeper: ", element.Status.TaskId)
+						StartZookeeper(element.Command.InternalID)
+					}
+					if element.Command.IsKafka == true {
+						logrus.Info("RestartKafka: ", element.Status.TaskId)
+						StartKafka(element.Command.InternalID)
+					}
+					deleteOldTask(element.Status.TaskId)
+				case mesosproto.TaskState_TASK_KILLED:
+					deleteOldTask(element.Status.TaskId)
+				case mesosproto.TaskState_TASK_LOST:
+					deleteOldTask(element.Status.TaskId)
+				case mesosproto.TaskState_TASK_ERROR:
+					deleteOldTask(element.Status.TaskId)
+				}
+			}
+		}
+	}
+}
+
+// Delete Failed Tasks from the config
+func deleteOldTask(taskID *mesosproto.TaskID) {
+	copy := make(map[string]cfg.State)
+
+	if config.State != nil {
+		for _, element := range config.State {
+			if element.Status != nil {
+				tmpID := *element.Status.GetTaskId().Value
+				if element.Status.TaskId != taskID {
+					copy[tmpID] = element
+				} else {
+					logrus.Debug("Delete Task from config: ", tmpID)
+				}
+			}
+		}
+
+		config.State = copy
+	}
+}
+
+// Kill a Task with the given taskID
+func Kill(taskID string) error {
+	task := config.State[taskID]
+
+	logrus.Debug("Kill task %s [%#v]", taskID, task)
+
+	return Call(&mesosproto.Call{
+		Type: mesosproto.Call_KILL.Enum(),
+		Kill: &mesosproto.Call_Kill{
+			TaskId:  task.Status.TaskId,
+			AgentId: task.Status.AgentId,
+		},
+	})
 }

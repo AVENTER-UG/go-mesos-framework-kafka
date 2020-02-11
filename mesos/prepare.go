@@ -91,7 +91,6 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 			},
 		}}, nil
 	} else {
-
 		return []*mesosproto.TaskInfo{{
 			Name: &cmd.TaskName,
 			TaskId: &mesosproto.TaskID{

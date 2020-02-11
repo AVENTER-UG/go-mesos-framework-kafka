@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
 
 	"./api"
 	"./mesos"
@@ -23,7 +22,7 @@ func main() {
 	logrus.Println(config.AppName + " build" + config.MinVersion)
 
 	hostname := fqdn.Get()
-	listen := ":10000"
+	listen := fmt.Sprintf(":%s", config.FrameworkPort)
 
 	logrus.Info(hostname)
 
@@ -31,7 +30,7 @@ func main() {
 	checkpoint := true
 	webuiurl := fmt.Sprintf("http://%s%s", hostname, listen)
 
-	config.FrameworkInfoFile = fmt.Sprintf("%s/%s", os.TempDir(), "framework.json")
+	config.FrameworkInfoFile = fmt.Sprintf("%s/%s", config.FrameworkInfoFilePath, "framework.json")
 	config.CommandChan = make(chan cfg.Command, 100)
 	config.Hostname = hostname
 	config.Listen = listen
@@ -40,20 +39,22 @@ func main() {
 
 	config.State = map[string]cfg.State{}
 
+	config.FrameworkInfo.User = &config.FrameworkUser
+	config.FrameworkInfo.Name = &config.FrameworkName
+	config.FrameworkInfo.Hostname = &hostname
+	config.FrameworkInfo.WebuiUrl = &webuiurl
+	config.FrameworkInfo.FailoverTimeout = &failoverTimeout
+	config.FrameworkInfo.Checkpoint = &checkpoint
+	config.FrameworkInfo.Principal = &config.Principal
+	config.FrameworkInfo.Capabilities = []*mesosproto.FrameworkInfo_Capability{
+		{Type: mesosproto.FrameworkInfo_Capability_RESERVATION_REFINEMENT.Enum()},
+	}
+
+	// Load the old state if its exist
 	frameworkJSON, err := ioutil.ReadFile(config.FrameworkInfoFile)
 	if err == nil {
 		json.Unmarshal([]byte(frameworkJSON), &config)
-	} else {
-		config.FrameworkInfo.User = &config.FrameworkUser
-		config.FrameworkInfo.Name = &config.FrameworkName
-		config.FrameworkInfo.Hostname = &hostname
-		config.FrameworkInfo.WebuiUrl = &webuiurl
-		config.FrameworkInfo.FailoverTimeout = &failoverTimeout
-		config.FrameworkInfo.Checkpoint = &checkpoint
-		config.FrameworkInfo.Principal = &config.Principal
-		config.FrameworkInfo.Capabilities = []*mesosproto.FrameworkInfo_Capability{
-			{Type: mesosproto.FrameworkInfo_Capability_RESERVATION_REFINEMENT.Enum()},
-		}
+		mesos.Reconcile()
 	}
 
 	mesos.SetConfig(&config)

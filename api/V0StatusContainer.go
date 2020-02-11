@@ -13,8 +13,9 @@ import (
 // curl -X GET 127.0.0.1:10000/v0/container/{taskID} -d 'JSON'
 func V0StatusContainer(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	auth := CheckAuth(r, w)
 
-	if vars == nil {
+	if vars == nil || !auth {
 		return
 	}
 
