@@ -12,6 +12,11 @@ import (
 // curl -X GET 127.0.0.1:10000/v0/kafka/reflate -d 'JSON'
 func V0ReflateKafka(w http.ResponseWriter, r *http.Request) {
 	logrus.Debug("HTTP GET V0ReflateKafka")
+	auth := CheckAuth(r, w)
+
+	if !auth {
+		return
+	}
 
 	mesos.SearchMissingKafka()
 

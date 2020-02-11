@@ -142,27 +142,29 @@ func Call(message *mesosproto.Call) error {
 	return fmt.Errorf("Offer Accept %d", res.StatusCode)
 }
 
-// If the framework was restartet, we have to reconcile the task states.
+// Reconcile will reconcile the task states after the framework was restarted
 func Reconcile() {
 	var oldTasks []*mesosproto.Call_Reconcile_Task
 	maxID := 0
-	for _, t := range config.State {
-		if t.Status != nil {
-			oldTasks = append(oldTasks, &mesosproto.Call_Reconcile_Task{
-				TaskId:  t.Status.TaskId,
-				AgentId: t.Status.AgentId,
-			})
-			numericID, err := strconv.Atoi(t.Status.TaskId.GetValue())
-			if err == nil && numericID > maxID {
-				maxID = numericID
+	if config != nil {
+		for _, t := range config.State {
+			if t.Status != nil {
+				oldTasks = append(oldTasks, &mesosproto.Call_Reconcile_Task{
+					TaskId:  t.Status.TaskId,
+					AgentId: t.Status.AgentId,
+				})
+				numericID, err := strconv.Atoi(t.Status.TaskId.GetValue())
+				if err == nil && numericID > maxID {
+					maxID = numericID
+				}
 			}
 		}
+		atomic.StoreUint64(&config.TaskID, uint64(maxID))
+		Call(&mesosproto.Call{
+			Type:      mesosproto.Call_RECONCILE.Enum(),
+			Reconcile: &mesosproto.Call_Reconcile{Tasks: oldTasks},
+		})
 	}
-	atomic.StoreUint64(&config.TaskID, uint64(maxID))
-	Call(&mesosproto.Call{
-		Type:      mesosproto.Call_RECONCILE.Enum(),
-		Reconcile: &mesosproto.Call_Reconcile{Tasks: oldTasks},
-	})
 }
 
 // Restart failed zookeeper container
