@@ -52,7 +52,12 @@ func Subscribe() error {
 	client.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	req, _ := http.NewRequest("POST", "https://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
+
+	protocol := "https"
+	if config.MesosSSL == false {
+		protocol = "http"
+	}
+	req, _ := http.NewRequest("POST", protocol+"://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
 	req.SetBasicAuth(config.Username, config.Password)
 	req.Header.Set("Content-Type", "application/json")
 	res, err := client.Do(req)
@@ -121,7 +126,11 @@ func Call(message *mesosproto.Call) error {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
-	req, _ := http.NewRequest("POST", "https://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
+	protocol := "https"
+	if config.MesosSSL == false {
+		protocol = "http"
+	}
+	req, _ := http.NewRequest("POST", protocol+"://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
 	req.SetBasicAuth(config.Username, config.Password)
 	req.Header.Set("Mesos-Stream-Id", config.MesosStreamID)
 	req.Header.Set("Content-Type", "application/json")
@@ -133,13 +142,12 @@ func Call(message *mesosproto.Call) error {
 
 	defer res.Body.Close()
 
-	io.Copy(os.Stderr, res.Body)
-
 	if res.StatusCode != 202 {
+		io.Copy(os.Stderr, res.Body)
 		return fmt.Errorf("Error %d", res.StatusCode)
 	}
 
-	return fmt.Errorf("Offer Accept %d", res.StatusCode)
+	return nil
 }
 
 // Reconcile will reconcile the task states after the framework was restarted

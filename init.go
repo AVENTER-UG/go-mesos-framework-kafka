@@ -32,4 +32,12 @@ func init() {
 	config.Credentials.Username = os.Getenv("AUTH_USERNAME")
 	config.Credentials.Password = os.Getenv("AUTH_PASSWORD")
 	config.AppName = "Mesos Kafka Framework"
+
+	// The comunication to the mesos server should be via ssl or not
+	if os.Getenv("MESOS_SSL") == "true" {
+		config.MesosSSL = true
+	} else {
+		config.MesosSSL = false
+	}
+
 }

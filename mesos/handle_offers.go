@@ -64,10 +64,10 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 						TaskInfos: taskInfo,
 					}}}}}
 
+		logrus.Debug("Offer Accept")
 		return Call(accept)
-
-		return nil
 	default:
+		logrus.Debug("Offer Decline")
 		decline := &mesosproto.Call{
 			Type:    mesosproto.Call_DECLINE.Enum(),
 			Decline: &mesosproto.Call_Decline{OfferIds: offerIds},

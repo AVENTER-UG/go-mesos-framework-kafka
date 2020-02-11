@@ -15,6 +15,7 @@ type Config struct {
 	Username              string
 	Password              string
 	MesosMasterServer     string
+	MesosSSL              bool
 	MesosStreamID         string
 	TaskID                uint64
 	SSL                   bool

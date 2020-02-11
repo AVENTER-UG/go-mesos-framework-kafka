@@ -14,3 +14,4 @@
 - Add RestCall scale up and down for zookeeper
 - Add RestCall to kill a task
 - Add Authentication
+- Add Support to configure (non)SSL Support to Mesos
