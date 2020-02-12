@@ -15,6 +15,7 @@ Dieses Framework ist aktuell so erstellt, dass es MESOS mit SSL Verschlüsselung
 
 export FRAMEWORK_USER="root"
 export FRAMEWORK_NAME="kafkaframework"
+export FRAMEWORK_STATEFILE_PATH="/tmp"
 export MESOS_PRINCIPAL="<mesos_principal>"
 export MESOS_USERNAME="<mesos_user>"
 export MESOS_PASSWORD="<mesos_password>"
@@ -25,6 +26,9 @@ export ZOOKEEPER_COUNT=1
 export KAFKA_COUNT=3
 export RES_CPU=0.1
 export RES_MEM=3200
+export AUTH_PASSWORD="password"
+export AUTH_USERNAME="user"
+export MESOS_SSL="true"
 
 go run init.go app.go
 ```
@@ -53,3 +57,18 @@ Sollte aus bestimmten Gründen der Healthcheck Status im Framework nicht mit der
 curl -X GET 127.0.0.1:10000/v0/<kafka|zookeeper>/reflate -d 'JSON'
 ```
 
+## Kafka oder Zookeeper skalieren
+
+Um Kafka oder Zookeeper im Betrieb zu skalieren, wird dem Framework die zu laufende Anzahl an Containern angegeben. Soll der Zookeeper also drei mal laufen, muss als <count> eine "3" angegeben werden. Beim Scaledown wird der zuletzt hinzugefügte Container entfernt.
+
+```Bash
+curl -X GET 127.0.0.1:10000/v0/<kafka|zookeeper>/scale/<count> -d 'JSON'
+```
+
+## Task killen
+
+Sollte es notwendig sein einen Task zu benden, erfolgt dies mit dem nachfolgenden aufruf. Der beendete Container wird nicht automatisch neu gestartet.
+
+```Bash
+curl -X GET 127.0.0.1:10000/v0/task/kill/<taskId> -d 'JSON'
+```
