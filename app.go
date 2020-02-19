@@ -17,9 +17,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var MinVersion string
+
 func main() {
 	util.SetLogging(config.LogLevel, config.EnableSyslog, config.AppName)
-	logrus.Println(config.AppName + " build" + config.MinVersion)
+	logrus.Println(config.AppName + " build " + MinVersion)
 
 	hostname := fqdn.Get()
 	listen := fmt.Sprintf(":%s", config.FrameworkPort)

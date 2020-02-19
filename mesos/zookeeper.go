@@ -65,21 +65,26 @@ func StartZookeeper(id int) {
 	cmd.ContainerImage = "zookeeper"
 	cmd.NetworkMode = "bridge"
 	cmd.Shell = false
-	cmd.TaskName = "Zookeeper" + strconv.Itoa(id)
+	cmd.TaskName = "zookeeper" + strconv.Itoa(id)
+	cmd.Hostname = "zookeeper" + strconv.Itoa(id) + "." + config.Domain
 	cmd.InternalID = id
 	cmd.IsZookeeper = true
 	sI := strconv.Itoa(id)
 	cmd.Environment.Variables = []*mesosproto.Environment_Variable{
 		{
+			Name:  func() *string { x := "SERVICE_NAME"; return &x }(),
+			Value: &cmd.TaskName,
+		},
+
+		{
 			Name:  func() *string { x := "ZOO_MY_ID"; return &x }(),
 			Value: &sI,
-		}, {
+		},
+		{
 			Name:  func() *string { x := "ZOO_SERVERS"; return &x }(),
 			Value: GetZookeeperServerString(id),
 		},
 	}
-
-	cmd.Hostname = "zookeeper" + strconv.Itoa(id) + "." + config.Domain
 
 	d, _ := json.Marshal(&cmd)
 	logrus.Debug("Scheduled Zookeeper: ", string(d))

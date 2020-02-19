@@ -40,6 +40,7 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 		agentID := offerIds[0].Value
 
 		var taskInfo []*mesosproto.TaskInfo
+		RefuseSeconds := 10.0
 
 		switch cmd.ContainerType {
 		case "NONE":
@@ -58,16 +59,19 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 				OfferIds: []*mesosproto.OfferID{{
 					Value: agentID,
 				}},
+				Filters: &mesosproto.Filters{
+					RefuseSeconds: &RefuseSeconds,
+				},
 				Operations: []*mesosproto.Offer_Operation{{
 					Type: mesosproto.Offer_Operation_LAUNCH.Enum(),
 					Launch: &mesosproto.Offer_Operation_Launch{
 						TaskInfos: taskInfo,
 					}}}}}
 
-		logrus.Debug("Offer Accept")
+		logrus.Debug("Offer Accept: ", offerIds)
 		return Call(accept)
 	default:
-		logrus.Debug("Offer Decline")
+		logrus.Debug("Offer Decline: ", offerIds)
 		decline := &mesosproto.Call{
 			Type:    mesosproto.Call_DECLINE.Enum(),
 			Decline: &mesosproto.Call_Decline{OfferIds: offerIds},

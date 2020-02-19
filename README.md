@@ -1,6 +1,7 @@
 # go-mesos-framework-kafka
 
-<a href="https://liberapay.com/mesos" target="_new"><img src="https://img.shields.io/liberapay/receives/AVENTER.svg?logo=liberapay"></a>
+[![Donate](https://img.shields.io/liberapay/receives/AVENTER.svg?logo=liberapay)](https://liberapay.com/mesos)
+[![Support Chat](https://img.shields.io/static/v1?label=Chat&message=Support&color=brightgreen)](https://riot.im/app/#/room/#support:matrix.aventer.biz)
 
 
 Dies ist ein Kafka Framework für Apache Mesos

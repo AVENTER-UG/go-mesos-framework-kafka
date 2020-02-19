@@ -64,9 +64,13 @@ func StartKafka(id int) {
 	cmd.Shell = false
 	cmd.InternalID = id
 	cmd.IsKafka = true
-	cmd.TaskName = "Kafka" + strconv.Itoa(id)
+	cmd.TaskName = "kafka" + strconv.Itoa(id)
 	cmd.Hostname = "kafka" + strconv.Itoa(id) + "." + config.Domain
 	cmd.Environment.Variables = []*mesosproto.Environment_Variable{
+		{
+			Name:  func() *string { x := "SERVICE_NAME"; return &x }(),
+			Value: &cmd.TaskName,
+		},
 		{
 			Name:  func() *string { x := "KAFKA_ADVERTISED_HOST_NAME"; return &x }(),
 			Value: &cmd.Hostname,

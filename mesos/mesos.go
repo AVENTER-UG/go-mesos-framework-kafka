@@ -106,7 +106,8 @@ func Subscribe() error {
 			case mesosproto.Event_HEARTBEAT:
 			case mesosproto.Event_OFFERS:
 				restartFailedContainer()
-				logrus.Debug("Offers Returns: ", HandleOffers(event.Offers))
+				logrus.Debug("Offer Got: ", event.Offers.Offers[0].GetId())
+				HandleOffers(event.Offers)
 			default:
 				logrus.Debug("DEFAULT EVENT: ", event.Offers)
 			}
@@ -180,9 +181,8 @@ func restartFailedContainer() {
 	if config.State != nil {
 		for _, element := range config.State {
 			if element.Status != nil {
-				logrus.Debug("restartFailedContainer: ", *element.Status.State, element.Status.TaskId)
 				switch *element.Status.State {
-				case mesosproto.TaskState_TASK_FAILED:
+				case mesosproto.TaskState_TASK_FAILED, mesosproto.TaskState_TASK_ERROR:
 					if element.Command.IsZookeeper == true {
 						logrus.Info("RestartZookeeper: ", element.Status.TaskId)
 						StartZookeeper(element.Command.InternalID)
@@ -195,8 +195,6 @@ func restartFailedContainer() {
 				case mesosproto.TaskState_TASK_KILLED:
 					deleteOldTask(element.Status.TaskId)
 				case mesosproto.TaskState_TASK_LOST:
-					deleteOldTask(element.Status.TaskId)
-				case mesosproto.TaskState_TASK_ERROR:
 					deleteOldTask(element.Status.TaskId)
 				}
 			}
