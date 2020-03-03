@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	mesos "../mesos"
+	mesosproto "../proto"
 )
 
 // V0ScaleZookeeper will scale the zookeeper service
@@ -37,6 +38,10 @@ func V0ScaleZookeeper(w http.ResponseWriter, r *http.Request) {
 		// Scale Up
 		if newCount > oldCount {
 			logrus.Info("Zookeeper Scale Up ", i)
+			revive := &mesosproto.Call{
+				Type: mesosproto.Call_REVIVE.Enum(),
+			}
+			mesos.Call(revive)
 		}
 
 		// Scale Down

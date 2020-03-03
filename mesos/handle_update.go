@@ -10,6 +10,12 @@ import (
 
 // HandleUpdate will handle the offers event of mesos
 func HandleUpdate(event *mesosproto.Event) error {
+	// unsuppress
+	revive := &mesosproto.Call{
+		Type: mesosproto.Call_REVIVE.Enum(),
+	}
+	Call(revive)
+
 	update := event.Update
 
 	msg := &mesosproto.Call{
