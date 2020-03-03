@@ -31,8 +31,10 @@ type Config struct {
 	ZookeeperServers      string
 	ZookeeperCount        int
 	ZookeeperMax          int
+	ZookeeperCustomString string
 	KafkaCount            int
 	KafkaMax              int
+	KafkaCustomString     string
 	ResCPU                float64
 	ResMEM                float64
 	Credentials           UserCredentials
