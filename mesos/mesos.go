@@ -53,6 +53,7 @@ func Subscribe() error {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
+	logrus.Debug(config.MesosSSL)
 	protocol := "https"
 	if config.MesosSSL == false {
 		protocol = "http"

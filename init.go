@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"strconv"
+	"strings"
 
 	cfg "./types"
 )
@@ -36,7 +37,7 @@ func init() {
 	config.KafkaCustomString = os.Getenv("KAFKA_CUSTOM_DOMAIN")
 
 	// The comunication to the mesos server should be via ssl or not
-	if os.Getenv("MESOS_SSL") == "true" {
+	if strings.Compare(os.Getenv("MESOS_SSL"), "true") == 0 {
 		config.MesosSSL = true
 	} else {
 		config.MesosSSL = false

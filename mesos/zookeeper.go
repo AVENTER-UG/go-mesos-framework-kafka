@@ -97,7 +97,6 @@ func StartZookeeper(id int) {
 func initStartZookeeper() {
 	if config.ZookeeperCount <= (config.ZookeeperMax - 1) {
 		StartZookeeper(config.ZookeeperCount)
-
 		config.ZookeeperCount++
 	}
 }

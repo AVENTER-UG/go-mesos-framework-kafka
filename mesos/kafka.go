@@ -115,7 +115,6 @@ func initStartKafka() {
 
 	if config.KafkaCount <= (config.KafkaMax-1) && zookeeperState.Status.GetState() == 1 {
 		StartKafka(config.KafkaCount)
-
 		config.KafkaCount++
 	}
 }

@@ -26,16 +26,17 @@ func V0ScaleZookeeper(w http.ResponseWriter, r *http.Request) {
 	if vars["count"] != "" {
 		newCount, _ := strconv.Atoi(vars["count"])
 		oldCount := config.ZookeeperMax
+		logrus.Debug("V0ScaleZookeeper: oldCount: ", oldCount)
 		config.ZookeeperMax = newCount
-		i := (newCount - oldCount) * -1
+		i := (newCount - oldCount)
+		// change the number to be positiv
+		if i < 0 {
+			i = i * -1
+		}
 
 		// Scale Up
 		if newCount > oldCount {
 			logrus.Info("Zookeeper Scale Up ", i)
-			for x := oldCount; x < newCount; x++ {
-				mesos.GetZookeeperServerString(x)
-				mesos.StartZookeeper(x)
-			}
 		}
 
 		// Scale Down
@@ -44,11 +45,15 @@ func V0ScaleZookeeper(w http.ResponseWriter, r *http.Request) {
 
 			for x := newCount; x < oldCount; x++ {
 				task := mesos.StatusZookeeper(x)
-				id := *task.Status.TaskId.Value
-				ret := mesos.Kill(id)
+				if task.Status.TaskId != nil {
+					id := *task.Status.TaskId.Value
+					ret := mesos.Kill(id)
 
-				logrus.Info("V0TaskKill: ", ret)
-				config.ZookeeperCount--
+					logrus.Info("V0TaskKill: ", ret)
+					config.ZookeeperCount--
+				} else {
+					logrus.Debug("V0ScaleZookeeper: Missing TaskID")
+				}
 			}
 		}
 

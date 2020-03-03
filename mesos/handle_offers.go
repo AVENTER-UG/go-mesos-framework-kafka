@@ -40,7 +40,7 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 		agentID := offerIds[0].Value
 
 		var taskInfo []*mesosproto.TaskInfo
-		RefuseSeconds := 10.0
+		//RefuseSeconds := 5.0
 
 		switch cmd.ContainerType {
 		case "NONE":
@@ -59,9 +59,9 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 				OfferIds: []*mesosproto.OfferID{{
 					Value: agentID,
 				}},
-				Filters: &mesosproto.Filters{
-					RefuseSeconds: &RefuseSeconds,
-				},
+				//Filters: &mesosproto.Filters{
+				//	RefuseSeconds: &RefuseSeconds,
+				//},
 				Operations: []*mesosproto.Offer_Operation{{
 					Type: mesosproto.Offer_Operation_LAUNCH.Enum(),
 					Launch: &mesosproto.Offer_Operation_Launch{
