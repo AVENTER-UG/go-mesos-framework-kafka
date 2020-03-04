@@ -8,6 +8,7 @@ type Config struct {
 	FrameworkBind         string
 	FrameworkUser         string
 	FrameworkName         string
+	FrameworkRole         string
 	FrameworkInfo         mesosproto.FrameworkInfo
 	FrameworkInfoFile     string
 	FrameworkInfoFilePath string
