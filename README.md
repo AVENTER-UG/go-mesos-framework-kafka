@@ -16,6 +16,8 @@ Dieses Framework ist aktuell so erstellt, dass es MESOS mit SSL Verschlüsselung
 
 export FRAMEWORK_USER="root"
 export FRAMEWORK_NAME="kafkaframework"
+export FRAMEWORK_PORT="10000"
+export FRAMEWORK_ROLE="kafka"
 export FRAMEWORK_STATEFILE_PATH="/tmp"
 export MESOS_PRINCIPAL="<mesos_principal>"
 export MESOS_USERNAME="<mesos_user>"
@@ -30,6 +32,8 @@ export RES_MEM=3200
 export AUTH_PASSWORD="password"
 export AUTH_USERNAME="user"
 export MESOS_SSL="true"
+export ZOOKEEPER_CUSTOM_DOMAIN=""
+export KAFKA_CUSTOM_DOMAIN=""
 
 go run init.go app.go
 ```

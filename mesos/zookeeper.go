@@ -65,8 +65,8 @@ func StartZookeeper(id int) {
 	cmd.ContainerImage = "zookeeper"
 	cmd.NetworkMode = "bridge"
 	cmd.Shell = false
-	cmd.TaskName = "zookeeper" + strconv.Itoa(id)
-	cmd.Hostname = "zookeeper" + strconv.Itoa(id) + config.ZookeeperCustomString + "." + config.Domain
+	cmd.TaskName = "av_zookeeper" + strconv.Itoa(id)
+	cmd.Hostname = "av_zookeeper" + strconv.Itoa(id) + config.ZookeeperCustomString + "." + config.Domain
 	cmd.InternalID = id
 	cmd.IsZookeeper = true
 	sI := strconv.Itoa(id)
@@ -110,7 +110,7 @@ func GetZookeeperServerString(id int) *string {
 		if i == id {
 			server += "server." + sI + "=0.0.0.0:2888:3888;2181 "
 		} else {
-			server += "server." + sI + "=zookeeper" + sI + config.ZookeeperCustomString + "." + config.Domain + ":2888:3888;2181 "
+			server += "server." + sI + "=av_zookeeper" + sI + config.ZookeeperCustomString + "." + config.Domain + ":2888:3888;2181 "
 		}
 	}
 
@@ -123,7 +123,7 @@ func CreateZookeeperServerString() {
 	var server string
 	for i := 0; i < max; i++ {
 		sI := strconv.Itoa(i)
-		server += "zookeeper" + sI + config.ZookeeperCustomString + "." + config.Domain + ":2181, "
+		server += "av_zookeeper" + sI + config.ZookeeperCustomString + "." + config.Domain + ":2181, "
 	}
 
 	config.ZookeeperServers = server

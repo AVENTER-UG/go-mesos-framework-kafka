@@ -33,9 +33,11 @@ type Config struct {
 	ZookeeperCount        int
 	ZookeeperMax          int
 	ZookeeperCustomString string
+	ZookeeperSlave        map[string]string
 	KafkaCount            int
 	KafkaMax              int
 	KafkaCustomString     string
+	KafkaSlave            map[string]string
 	ResCPU                float64
 	ResMEM                float64
 	Credentials           UserCredentials
@@ -59,6 +61,7 @@ type Command struct {
 	InternalID     int
 	IsZookeeper    bool
 	IsKafka        bool
+	Slave          string
 }
 
 // State will have the state of all tasks stated by this framework
