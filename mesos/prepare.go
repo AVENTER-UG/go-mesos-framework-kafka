@@ -37,8 +37,6 @@ func prepareTaskInfoExecuteCommand(agent *mesosproto.AgentID, cmd cfg.Command) (
 func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command) ([]*mesosproto.TaskInfo, error) {
 	newTaskID := fmt.Sprint(atomic.AddUint64(&config.TaskID, 1))
 
-	networkIsolator := "weave"
-
 	contype := mesosproto.ContainerInfo_DOCKER.Enum()
 
 	// Set Container Network Mode
@@ -85,9 +83,7 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 					Network:    networkMode,
 					Privileged: &cmd.Privileged,
 				},
-				NetworkInfos: []*mesosproto.NetworkInfo{{
-					Name: &networkIsolator,
-				}},
+				NetworkInfos: cmd.NetworkInfo,
 			},
 		}}, nil
 	} else {
@@ -112,9 +108,7 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 					Network:    networkMode,
 					Privileged: &cmd.Privileged,
 				},
-				NetworkInfos: []*mesosproto.NetworkInfo{{
-					Name: &networkIsolator,
-				}},
+				NetworkInfos: cmd.NetworkInfo,
 			},
 		}}, nil
 	}

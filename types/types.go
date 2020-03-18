@@ -56,6 +56,7 @@ type Command struct {
 	Shell          bool                          `protobuf:"varint,6,opt,name=shell,def=1" json:"shell,omitempty"`
 	Uris           []*mesosproto.CommandInfo_URI `protobuf:"bytes,1,rep,name=uris" json:"uris,omitempty"`
 	Environment    mesosproto.Environment        `protobuf:"bytes,2,opt,name=environment" json:"environment,omitempty"`
+	NetworkInfo    []*mesosproto.NetworkInfo     `protobuf:"bytes,2,opt,name=networkinfo" json:"networkinfo,omitempty"`
 	Arguments      []string                      `protobuf:"bytes,7,rep,name=arguments" json:"arguments,omitempty"`
 	Executor       mesosproto.ExecutorInfo
 	InternalID     int

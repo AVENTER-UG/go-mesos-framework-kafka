@@ -61,9 +61,14 @@ func StartZookeeper(id int) {
 		}
 	}
 
+	networkIsolator := "weave"
+
 	cmd.ContainerType = "DOCKER"
 	cmd.ContainerImage = "zookeeper"
 	cmd.NetworkMode = "bridge"
+	cmd.NetworkInfo = []*mesosproto.NetworkInfo{{
+		Name: &networkIsolator,
+	}}
 	cmd.Shell = false
 	cmd.TaskName = "av_zookeeper" + strconv.Itoa(id)
 	cmd.Hostname = "av_zookeeper" + strconv.Itoa(id) + config.ZookeeperCustomString + "." + config.Domain

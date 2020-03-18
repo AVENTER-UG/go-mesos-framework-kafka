@@ -57,10 +57,14 @@ func StartKafka(id int) {
 			return
 		}
 	}
+	//networkIsolator := "weave"
 
 	cmd.ContainerType = "DOCKER"
-	cmd.ContainerImage = "wurstmeister/kafka"
+	cmd.ContainerImage = "wurstmeister/kafka:2.12-2.1.1"
 	cmd.NetworkMode = "bridge"
+	//cmd.NetworkInfo = []*mesosproto.NetworkInfo{{
+	//	Name: &networkIsolator,
+	//}}
 	cmd.Shell = false
 	cmd.InternalID = id
 	cmd.IsKafka = true
