@@ -4,13 +4,19 @@ import (
 	"github.com/sirupsen/logrus"
 
 	mesosproto "../proto"
+	cfg "../types"
 )
 
-func defaultResources() []*mesosproto.Resource {
+func defaultResources(cmd cfg.Command) []*mesosproto.Resource {
 	CPU := "cpus"
 	MEM := "mem"
 	cpu := config.ResCPU
 	mem := config.ResMEM
+	PORT := "ports"
+
+	var portBegin, portEnd uint64
+	portBegin = 31210 + uint64(cmd.TaskID)
+	portEnd = 31210 + uint64(cmd.TaskID)
 
 	return []*mesosproto.Resource{
 		{
@@ -22,6 +28,14 @@ func defaultResources() []*mesosproto.Resource {
 			Name:   &MEM,
 			Type:   mesosproto.Value_SCALAR.Enum(),
 			Scalar: &mesosproto.Value_Scalar{Value: &mem},
+		},
+		{
+			Name: &PORT,
+			Type: mesosproto.Value_RANGES.Enum(),
+			Ranges: &mesosproto.Value_Ranges{Range: []*mesosproto.Value_Range{{
+				Begin: &portBegin,
+				End:   &portEnd,
+			}}},
 		},
 	}
 }
@@ -45,8 +59,6 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 		RefuseSeconds := 5.0
 
 		switch cmd.ContainerType {
-		case "NONE":
-			taskInfo, _ = prepareTaskInfoExecuteCommand(takeOffer.AgentId, cmd)
 		case "MESOS":
 			taskInfo, _ = prepareTaskInfoExecuteContainer(takeOffer.AgentId, cmd)
 		case "DOCKER":

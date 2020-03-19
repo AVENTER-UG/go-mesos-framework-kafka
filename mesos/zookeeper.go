@@ -3,6 +3,7 @@ package mesos
 import (
 	"encoding/json"
 	"strconv"
+	"sync/atomic"
 
 	mesosproto "../proto"
 
@@ -42,6 +43,8 @@ func StatusZookeeper(id int) *cfg.State {
 
 // StartZookeeper is starting a zookeeper container with the given IDs
 func StartZookeeper(id int) {
+	newTaskID := atomic.AddUint64(&config.TaskID, 1)
+
 	var cmd cfg.Command
 
 	// before we will start a new zookeeper, we should be sure its not already running
@@ -62,6 +65,12 @@ func StartZookeeper(id int) {
 	}
 
 	networkIsolator := "weave"
+	var hostport, containerport uint32
+	hostport = 31210 + uint32(newTaskID)
+	containerport = 2181
+	protocol := "tcp"
+
+	cmd.TaskID = newTaskID
 
 	cmd.ContainerType = "DOCKER"
 	cmd.ContainerImage = "zookeeper"
@@ -69,6 +78,12 @@ func StartZookeeper(id int) {
 	cmd.NetworkInfo = []*mesosproto.NetworkInfo{{
 		Name: &networkIsolator,
 	}}
+	cmd.DockerPortMappings = []*mesosproto.ContainerInfo_DockerInfo_PortMapping{{
+		HostPort:      &hostport,
+		ContainerPort: &containerport,
+		Protocol:      &protocol,
+	}}
+
 	cmd.Shell = false
 	cmd.TaskName = "av_zookeeper" + strconv.Itoa(id)
 	cmd.Hostname = "av_zookeeper" + strconv.Itoa(id) + config.ZookeeperCustomString + "." + config.Domain

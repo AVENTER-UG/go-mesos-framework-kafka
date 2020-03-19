@@ -3,6 +3,7 @@ package mesos
 import (
 	"encoding/json"
 	"strconv"
+	"sync/atomic"
 
 	mesosproto "../proto"
 	cfg "../types"
@@ -39,6 +40,8 @@ func StatusKafka(id int) *cfg.State {
 
 // start kafka with the given id
 func StartKafka(id int) {
+	newTaskID := atomic.AddUint64(&config.TaskID, 1)
+
 	var cmd cfg.Command
 
 	// be sure, that there is no kafka with this id already running
@@ -57,14 +60,25 @@ func StartKafka(id int) {
 			return
 		}
 	}
-	//networkIsolator := "weave"
+	networkIsolator := "weave"
+	var hostport, containerport uint32
+	hostport = 31210 + uint32(newTaskID)
+	containerport = 9092
+	protocol := "tcp"
+
+	cmd.TaskID = newTaskID
 
 	cmd.ContainerType = "DOCKER"
 	cmd.ContainerImage = "wurstmeister/kafka:2.12-2.1.1"
 	cmd.NetworkMode = "bridge"
-	//cmd.NetworkInfo = []*mesosproto.NetworkInfo{{
-	//	Name: &networkIsolator,
-	//}}
+	cmd.NetworkInfo = []*mesosproto.NetworkInfo{{
+		Name: &networkIsolator,
+	}}
+	cmd.DockerPortMappings = []*mesosproto.ContainerInfo_DockerInfo_PortMapping{{
+		HostPort:      &hostport,
+		ContainerPort: &containerport,
+		Protocol:      &protocol,
+	}}
 	cmd.Shell = false
 	cmd.InternalID = id
 	cmd.IsKafka = true
