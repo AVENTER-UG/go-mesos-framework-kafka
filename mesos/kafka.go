@@ -69,7 +69,7 @@ func StartKafka(id int) {
 	cmd.TaskID = newTaskID
 
 	cmd.ContainerType = "DOCKER"
-	cmd.ContainerImage = "wurstmeister/kafka:2.12-2.1.1"
+	cmd.ContainerImage = config.ImageKafka
 	cmd.NetworkMode = "bridge"
 	cmd.NetworkInfo = []*mesosproto.NetworkInfo{{
 		Name: &networkIsolator,

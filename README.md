@@ -34,6 +34,8 @@ export AUTH_USERNAME="user"
 export MESOS_SSL="true"
 export ZOOKEEPER_CUSTOM_DOMAIN=""
 export KAFKA_CUSTOM_DOMAIN=""
+export IMAGE_KAFKA="confluentinc/cp-kafka:5.4.1"
+export IMAGE_ZOOKEEPER="zookeeper:3.5.7"
 
 go run init.go app.go
 ```

@@ -41,6 +41,8 @@ type Config struct {
 	ResCPU                float64
 	ResMEM                float64
 	Credentials           UserCredentials
+	ImageZookeeper        string
+	ImageKafka            string
 }
 
 // Command is a chan which include all the Information about the started tasks

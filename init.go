@@ -38,6 +38,8 @@ func init() {
 	config.AppName = "Mesos Kafka Framework"
 	config.ZookeeperCustomString = os.Getenv("ZOOKEEPER_CUSTOM_DOMAIN")
 	config.KafkaCustomString = os.Getenv("KAFKA_CUSTOM_DOMAIN")
+	config.ImageZookeeper = util.Getenv("IMAGE_ZOOKEEPER", "zookeeper:3.5.7")
+	config.ImageKafka = util.Getenv("IMAGE_KAFKA", "confluentinc/cp-kafka:5.4.1")
 
 	// The comunication to the mesos server should be via ssl or not
 	if strings.Compare(os.Getenv("MESOS_SSL"), "true") == 0 {

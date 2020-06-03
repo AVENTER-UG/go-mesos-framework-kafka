@@ -3,6 +3,7 @@ package mesos
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
 	"sync/atomic"
 
 	mesosproto "../proto"
@@ -73,7 +74,7 @@ func StartZookeeper(id int) {
 	cmd.TaskID = newTaskID
 
 	cmd.ContainerType = "DOCKER"
-	cmd.ContainerImage = "zookeeper"
+	cmd.ContainerImage = config.ImageZookeeper
 	cmd.NetworkMode = "bridge"
 	cmd.NetworkInfo = []*mesosproto.NetworkInfo{{
 		Name: &networkIsolator,
@@ -143,8 +144,11 @@ func CreateZookeeperServerString() {
 	var server string
 	for i := 0; i < max; i++ {
 		sI := strconv.Itoa(i)
-		server += "av_zookeeper" + sI + config.ZookeeperCustomString + "." + config.Domain + ":2181, "
+		server += "av_zookeeper" + sI + config.ZookeeperCustomString + "." + config.Domain + ":2181,"
 	}
+
+	// remote last char
+	server = strings.TrimSuffix(server, ",")
 
 	config.ZookeeperServers = server
 }
