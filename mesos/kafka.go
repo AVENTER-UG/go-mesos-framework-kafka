@@ -84,6 +84,15 @@ func StartKafka(id int) {
 	cmd.IsKafka = true
 	cmd.TaskName = "av_kafka" + strconv.Itoa(id)
 	cmd.Hostname = "av_kafka" + strconv.Itoa(id) + config.KafkaCustomString + "." + config.Domain
+
+	cmd.Volumes = []*mesosproto.Volume{
+		{
+			HostPath:      func() *string { x := config.VolumeKafka; return &x }(),
+			ContainerPath: func() *string { x := "/var/lib/kafka/data"; return &x }(),
+			Mode:          mesosproto.Volume_RW.Enum(),
+		},
+	}
+
 	cmd.Environment.Variables = []*mesosproto.Environment_Variable{
 		{
 			Name:  func() *string { x := "SERVICE_NAME"; return &x }(),

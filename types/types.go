@@ -43,6 +43,9 @@ type Config struct {
 	Credentials           UserCredentials
 	ImageZookeeper        string
 	ImageKafka            string
+	VolumeDriver          string
+	VolumeZookeeper       string
+	VolumeKafka           string
 }
 
 // Command is a chan which include all the Information about the started tasks
