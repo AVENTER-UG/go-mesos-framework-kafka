@@ -3,6 +3,7 @@ package mesos
 import (
 	"encoding/json"
 	"strconv"
+	"sync/atomic"
 
 	mesosproto "../proto"
 	cfg "../types"
@@ -39,6 +40,8 @@ func StatusKafka(id int) *cfg.State {
 
 // start kafka with the given id
 func StartKafka(id int) {
+	newTaskID := atomic.AddUint64(&config.TaskID, 1)
+
 	var cmd cfg.Command
 
 	// be sure, that there is no kafka with this id already running
@@ -57,16 +60,44 @@ func StartKafka(id int) {
 			return
 		}
 	}
+	networkIsolator := "weave"
+	var hostport, containerport uint32
+	hostport = 31210 + uint32(newTaskID)
+	containerport = 9092
+	protocol := "tcp"
+
+	cmd.TaskID = newTaskID
 
 	cmd.ContainerType = "DOCKER"
-	cmd.ContainerImage = "wurstmeister/kafka"
+	cmd.ContainerImage = config.ImageKafka
 	cmd.NetworkMode = "bridge"
+	cmd.NetworkInfo = []*mesosproto.NetworkInfo{{
+		Name: &networkIsolator,
+	}}
+	cmd.DockerPortMappings = []*mesosproto.ContainerInfo_DockerInfo_PortMapping{{
+		HostPort:      &hostport,
+		ContainerPort: &containerport,
+		Protocol:      &protocol,
+	}}
 	cmd.Shell = false
 	cmd.InternalID = id
 	cmd.IsKafka = true
-	cmd.TaskName = "Kafka" + strconv.Itoa(id)
-	cmd.Hostname = "kafka" + strconv.Itoa(id) + "." + config.Domain
+	cmd.TaskName = "av_kafka" + strconv.Itoa(id)
+	cmd.Hostname = "av_kafka" + strconv.Itoa(id) + config.KafkaCustomString + "." + config.Domain
+
+	cmd.Volumes = []*mesosproto.Volume{
+		{
+			HostPath:      func() *string { x := config.VolumeKafka; return &x }(),
+			ContainerPath: func() *string { x := "/var/lib/kafka/data"; return &x }(),
+			Mode:          mesosproto.Volume_RW.Enum(),
+		},
+	}
+
 	cmd.Environment.Variables = []*mesosproto.Environment_Variable{
+		{
+			Name:  func() *string { x := "SERVICE_NAME"; return &x }(),
+			Value: &cmd.TaskName,
+		},
 		{
 			Name:  func() *string { x := "KAFKA_ADVERTISED_HOST_NAME"; return &x }(),
 			Value: &cmd.Hostname,
@@ -111,7 +142,6 @@ func initStartKafka() {
 
 	if config.KafkaCount <= (config.KafkaMax-1) && zookeeperState.Status.GetState() == 1 {
 		StartKafka(config.KafkaCount)
-
 		config.KafkaCount++
 	}
 }

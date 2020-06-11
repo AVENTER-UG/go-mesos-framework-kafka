@@ -1,44 +1,13 @@
 package mesos
 
 import (
-	"fmt"
-	"sync/atomic"
+	"strconv"
 
 	mesosproto "../proto"
 	cfg "../types"
-	"git.aventer.biz/AVENTER/util"
 )
 
-func prepareTaskInfoExecuteCommand(agent *mesosproto.AgentID, cmd cfg.Command) ([]*mesosproto.TaskInfo, error) {
-
-	newTaskID, _ := util.GenUUID()
-
-	// Save state of the new task
-	tmp := config.State[newTaskID]
-	tmp.Command = cmd
-	config.State[newTaskID] = tmp
-
-	return []*mesosproto.TaskInfo{{
-		Name: &cmd.TaskName,
-		TaskId: &mesosproto.TaskID{
-			Value: &newTaskID,
-		},
-		AgentId:   agent,
-		Resources: defaultResources(),
-		Command: &mesosproto.CommandInfo{
-			Shell:       &cmd.Shell,
-			Value:       &cmd.Command,
-			Uris:        cmd.Uris,
-			Environment: &cmd.Environment,
-		},
-	}}, nil
-}
-
 func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command) ([]*mesosproto.TaskInfo, error) {
-	newTaskID := fmt.Sprint(atomic.AddUint64(&config.TaskID, 1))
-
-	networkIsolator := "weave"
-
 	contype := mesosproto.ContainerInfo_DOCKER.Enum()
 
 	// Set Container Network Mode
@@ -58,6 +27,7 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 	}
 
 	// Save state of the new task
+	newTaskID := strconv.Itoa(int(cmd.TaskID))
 	tmp := config.State[newTaskID]
 	tmp.Command = cmd
 	config.State[newTaskID] = tmp
@@ -69,7 +39,7 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 				Value: &newTaskID,
 			},
 			AgentId:   agent,
-			Resources: defaultResources(),
+			Resources: defaultResources(cmd),
 			Command: &mesosproto.CommandInfo{
 				Shell:       &cmd.Shell,
 				Value:       &cmd.Command,
@@ -81,13 +51,12 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 				Volumes:  cmd.Volumes,
 				Hostname: &cmd.Hostname,
 				Docker: &mesosproto.ContainerInfo_DockerInfo{
-					Image:      &cmd.ContainerImage,
-					Network:    networkMode,
-					Privileged: &cmd.Privileged,
+					Image:        &cmd.ContainerImage,
+					Network:      networkMode,
+					PortMappings: cmd.DockerPortMappings,
+					Privileged:   &cmd.Privileged,
 				},
-				NetworkInfos: []*mesosproto.NetworkInfo{{
-					Name: &networkIsolator,
-				}},
+				NetworkInfos: cmd.NetworkInfo,
 			},
 		}}, nil
 	} else {
@@ -97,7 +66,7 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 				Value: &newTaskID,
 			},
 			AgentId:   agent,
-			Resources: defaultResources(),
+			Resources: defaultResources(cmd),
 			Command: &mesosproto.CommandInfo{
 				Shell:       &cmd.Shell,
 				Uris:        cmd.Uris,
@@ -108,13 +77,12 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 				Volumes:  cmd.Volumes,
 				Hostname: &cmd.Hostname,
 				Docker: &mesosproto.ContainerInfo_DockerInfo{
-					Image:      &cmd.ContainerImage,
-					Network:    networkMode,
-					Privileged: &cmd.Privileged,
+					Image:        &cmd.ContainerImage,
+					Network:      networkMode,
+					PortMappings: cmd.DockerPortMappings,
+					Privileged:   &cmd.Privileged,
 				},
-				NetworkInfos: []*mesosproto.NetworkInfo{{
-					Name: &networkIsolator,
-				}},
+				NetworkInfos: cmd.NetworkInfo,
 			},
 		}}, nil
 	}

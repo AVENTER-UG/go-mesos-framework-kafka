@@ -4,13 +4,19 @@ import (
 	"github.com/sirupsen/logrus"
 
 	mesosproto "../proto"
+	cfg "../types"
 )
 
-func defaultResources() []*mesosproto.Resource {
+func defaultResources(cmd cfg.Command) []*mesosproto.Resource {
 	CPU := "cpus"
 	MEM := "mem"
 	cpu := config.ResCPU
 	mem := config.ResMEM
+	PORT := "ports"
+
+	var portBegin, portEnd uint64
+	portBegin = 31210 + uint64(cmd.TaskID)
+	portEnd = 31210 + uint64(cmd.TaskID)
 
 	return []*mesosproto.Resource{
 		{
@@ -23,31 +29,40 @@ func defaultResources() []*mesosproto.Resource {
 			Type:   mesosproto.Value_SCALAR.Enum(),
 			Scalar: &mesosproto.Value_Scalar{Value: &mem},
 		},
+		{
+			Name: &PORT,
+			Type: mesosproto.Value_RANGES.Enum(),
+			Ranges: &mesosproto.Value_Ranges{Range: []*mesosproto.Value_Range{{
+				Begin: &portBegin,
+				End:   &portEnd,
+			}}},
+		},
 	}
 }
 
 // HandleOffers will handle the offers event of mesos
 func HandleOffers(offers *mesosproto.Event_Offers) error {
 	offerIds := []*mesosproto.OfferID{}
-	for _, offer := range offers.Offers {
+	var count int
+	for a, offer := range offers.Offers {
 		offerIds = append(offerIds, offer.Id)
+		count = a
+		logrus.Debug("Got Offer From:", offer.GetHostname())
 	}
 
 	select {
 	case cmd := <-config.CommandChan:
 
-		firstOffer := offers.Offers[0]
-		agentID := offerIds[0].Value
+		takeOffer := offers.Offers[count]
 
 		var taskInfo []*mesosproto.TaskInfo
+		RefuseSeconds := 5.0
 
 		switch cmd.ContainerType {
-		case "NONE":
-			taskInfo, _ = prepareTaskInfoExecuteCommand(firstOffer.AgentId, cmd)
 		case "MESOS":
-			taskInfo, _ = prepareTaskInfoExecuteContainer(firstOffer.AgentId, cmd)
+			taskInfo, _ = prepareTaskInfoExecuteContainer(takeOffer.AgentId, cmd)
 		case "DOCKER":
-			taskInfo, _ = prepareTaskInfoExecuteContainer(firstOffer.AgentId, cmd)
+			taskInfo, _ = prepareTaskInfoExecuteContainer(takeOffer.AgentId, cmd)
 		}
 
 		logrus.Debug("HandleOffers cmd: ", taskInfo)
@@ -56,22 +71,41 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 			Type: mesosproto.Call_ACCEPT.Enum(),
 			Accept: &mesosproto.Call_Accept{
 				OfferIds: []*mesosproto.OfferID{{
-					Value: agentID,
+					Value: takeOffer.Id.Value,
 				}},
+				Filters: &mesosproto.Filters{
+					RefuseSeconds: &RefuseSeconds,
+				},
 				Operations: []*mesosproto.Offer_Operation{{
 					Type: mesosproto.Offer_Operation_LAUNCH.Enum(),
 					Launch: &mesosproto.Offer_Operation_Launch{
 						TaskInfos: taskInfo,
 					}}}}}
 
-		logrus.Debug("Offer Accept")
-		return Call(accept)
-	default:
-		logrus.Debug("Offer Decline")
+		logrus.Info("Offer Accept: ", takeOffer.GetId(), " On Node: ", takeOffer.GetHostname())
+		Call(accept)
+
+		// decline unneeded offer
+		logrus.Info("Offer Decline: ", offerIds)
 		decline := &mesosproto.Call{
 			Type:    mesosproto.Call_DECLINE.Enum(),
 			Decline: &mesosproto.Call_Decline{OfferIds: offerIds},
 		}
 		return Call(decline)
+	default:
+		// decline unneeded offer
+		logrus.Info("Offer Decline: ", offerIds)
+		decline := &mesosproto.Call{
+			Type:    mesosproto.Call_DECLINE.Enum(),
+			Decline: &mesosproto.Call_Decline{OfferIds: offerIds},
+		}
+		Call(decline)
+
+		// tell mesos he dont have to offer again until we ask
+		logrus.Info("Framework Suppress: ", offerIds)
+		suppress := &mesosproto.Call{
+			Type: mesosproto.Call_SUPPRESS.Enum(),
+		}
+		return Call(suppress)
 	}
 }

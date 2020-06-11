@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	_ "net/http/pprof"
 
 	"./api"
 	"./mesos"
@@ -17,9 +16,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var MinVersion string
+
 func main() {
 	util.SetLogging(config.LogLevel, config.EnableSyslog, config.AppName)
-	logrus.Println(config.AppName + " build" + config.MinVersion)
+	logrus.Println(config.AppName + " build " + MinVersion)
 
 	hostname := fqdn.Get()
 	listen := fmt.Sprintf(":%s", config.FrameworkPort)
@@ -46,6 +47,7 @@ func main() {
 	config.FrameworkInfo.FailoverTimeout = &failoverTimeout
 	config.FrameworkInfo.Checkpoint = &checkpoint
 	config.FrameworkInfo.Principal = &config.Principal
+	config.FrameworkInfo.Role = &config.FrameworkRole
 	config.FrameworkInfo.Capabilities = []*mesosproto.FrameworkInfo_Capability{
 		{Type: mesosproto.FrameworkInfo_Capability_RESERVATION_REFINEMENT.Enum()},
 	}

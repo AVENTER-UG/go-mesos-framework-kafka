@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	mesos "../mesos"
+	mesosproto "../proto"
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,6 +18,11 @@ func V0ReflateKafka(w http.ResponseWriter, r *http.Request) {
 	if !auth {
 		return
 	}
+
+	revive := &mesosproto.Call{
+		Type: mesosproto.Call_REVIVE.Enum(),
+	}
+	mesos.Call(revive)
 
 	mesos.SearchMissingKafka()
 

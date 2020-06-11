@@ -1,6 +1,7 @@
 # go-mesos-framework-kafka
 
-<a href="https://liberapay.com/mesos" target="_new"><img src="https://img.shields.io/liberapay/receives/AVENTER.svg?logo=liberapay"></a>
+[![Donate](https://img.shields.io/liberapay/receives/AVENTER.svg?logo=liberapay)](https://liberapay.com/mesos)
+[![Support Chat](https://img.shields.io/static/v1?label=Chat&message=Support&color=brightgreen)](https://riot.im/app/#/room/#support:matrix.aventer.biz)
 
 
 Dies ist ein Kafka Framework für Apache Mesos
@@ -15,6 +16,8 @@ Dieses Framework ist aktuell so erstellt, dass es MESOS mit SSL Verschlüsselung
 
 export FRAMEWORK_USER="root"
 export FRAMEWORK_NAME="kafkaframework"
+export FRAMEWORK_PORT="10000"
+export FRAMEWORK_ROLE="kafka"
 export FRAMEWORK_STATEFILE_PATH="/tmp"
 export MESOS_PRINCIPAL="<mesos_principal>"
 export MESOS_USERNAME="<mesos_user>"
@@ -29,6 +32,13 @@ export RES_MEM=3200
 export AUTH_PASSWORD="password"
 export AUTH_USERNAME="user"
 export MESOS_SSL="true"
+export ZOOKEEPER_CUSTOM_DOMAIN=""
+export KAFKA_CUSTOM_DOMAIN=""
+export IMAGE_KAFKA="confluentinc/cp-kafka:5.4.1"
+export IMAGE_ZOOKEEPER="zookeeper:3.5.7"
+export VOLUME_DRIVER="local"
+export VOLUME_KAFKA="/data/kafka"
+export VOLUME_ZOOKEEPER="/data/zookeeper"
 
 go run init.go app.go
 ```

@@ -3,6 +3,9 @@ package main
 import (
 	"os"
 	"strconv"
+	"strings"
+
+	util "git.aventer.biz/AVENTER/util.git"
 
 	cfg "./types"
 )
@@ -15,26 +18,34 @@ func init() {
 	config.ZookeeperCount = 0
 	config.KafkaCount = 0
 
-	config.FrameworkUser = os.Getenv("FRAMEWORK_USER")
-	config.FrameworkName = os.Getenv("FRAMEWORK_NAME")
-	config.FrameworkPort = os.Getenv("FRAMEWORK_PORT")
-	config.FrameworkInfoFilePath = os.Getenv("FRAMEWORK_STATEFILE_PATH")
+	config.FrameworkUser = util.Getenv("FRAMEWORK_USER", "root")
+	config.FrameworkName = util.Getenv("FRAMEWORK_NAME", "kafka")
+	config.FrameworkRole = util.Getenv("FRAMEWORK_ROLE", "kafka")
+	config.FrameworkPort = util.Getenv("FRAMEWORK_PORT", "10000")
+	config.FrameworkInfoFilePath = util.Getenv("FRAMEWORK_STATEFILE_PATH", "/tmp")
 	config.Principal = os.Getenv("MESOS_PRINCIPAL")
 	config.Username = os.Getenv("MESOS_USERNAME")
 	config.Password = os.Getenv("MESOS_PASSWORD")
 	config.MesosMasterServer = os.Getenv("MESOS_MASTER")
-	config.LogLevel = os.Getenv("LOGLEVEL")
+	config.LogLevel = util.Getenv("LOGLEVEL", "info")
 	config.Domain = os.Getenv("DOMAIN")
 	config.ZookeeperMax, _ = strconv.Atoi(os.Getenv("ZOOKEEPER_COUNT"))
 	config.KafkaMax, _ = strconv.Atoi(os.Getenv("KAFKA_COUNT"))
-	config.ResCPU, _ = strconv.ParseFloat(os.Getenv("RES_CPU"), 64)
-	config.ResMEM, _ = strconv.ParseFloat(os.Getenv("RES_MEM"), 64)
+	config.ResCPU, _ = strconv.ParseFloat(util.Getenv("RES_CPU", "0.1"), 64)
+	config.ResMEM, _ = strconv.ParseFloat(util.Getenv("RES_MEM", "1200"), 64)
 	config.Credentials.Username = os.Getenv("AUTH_USERNAME")
 	config.Credentials.Password = os.Getenv("AUTH_PASSWORD")
 	config.AppName = "Mesos Kafka Framework"
+	config.ZookeeperCustomString = os.Getenv("ZOOKEEPER_CUSTOM_DOMAIN")
+	config.KafkaCustomString = os.Getenv("KAFKA_CUSTOM_DOMAIN")
+	config.ImageZookeeper = util.Getenv("IMAGE_ZOOKEEPER", "zookeeper:3.5.7")
+	config.ImageKafka = util.Getenv("IMAGE_KAFKA", "confluentinc/cp-kafka:5.4.1")
+	config.VolumeDriver = util.Getenv("VOLUME_DRIVER", "local")
+	config.VolumeKafka = util.Getenv("VOLUME_KAFAK", "/data/kafka")
+	config.VolumeZookeeper = util.Getenv("VOLUME_ZOOKEEPER", "/data/zookeeper")
 
 	// The comunication to the mesos server should be via ssl or not
-	if os.Getenv("MESOS_SSL") == "true" {
+	if strings.Compare(os.Getenv("MESOS_SSL"), "true") == 0 {
 		config.MesosSSL = true
 	} else {
 		config.MesosSSL = false

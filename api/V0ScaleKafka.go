@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	mesos "../mesos"
+	mesosproto "../proto"
 )
 
 // V0ScaleKafka will scale the kafka service
@@ -26,15 +27,21 @@ func V0ScaleKafka(w http.ResponseWriter, r *http.Request) {
 	if vars["count"] != "" {
 		newCount, _ := strconv.Atoi(vars["count"])
 		oldCount := config.KafkaMax
+		logrus.Debug("V0ScaleKafka: oldCount: ", oldCount)
 		config.KafkaMax = newCount
-		i := (newCount - oldCount) * -1
+		i := (newCount - oldCount)
+		// change the number to be positiv
+		if i < 0 {
+			i = i * -1
+		}
 
 		// Scale Up
 		if newCount > oldCount {
 			logrus.Info("Kafka Scale Up ", i)
-			for x := oldCount; x < newCount; x++ {
-				mesos.StartKafka(x)
+			revive := &mesosproto.Call{
+				Type: mesosproto.Call_REVIVE.Enum(),
 			}
+			mesos.Call(revive)
 		}
 
 		// Scale Down
@@ -43,11 +50,15 @@ func V0ScaleKafka(w http.ResponseWriter, r *http.Request) {
 
 			for x := newCount; x < oldCount; x++ {
 				task := mesos.StatusKafka(x)
-				id := *task.Status.TaskId.Value
-				ret := mesos.Kill(id)
+				if task.Status.TaskId != nil {
+					id := *task.Status.TaskId.Value
+					ret := mesos.Kill(id)
 
-				logrus.Info("V0TaskKill: ", ret)
-				config.KafkaCount--
+					logrus.Info("V0TaskKill: ", ret)
+					config.KafkaCount--
+				} else {
+					logrus.Debug("V0ScaleKafka: Missing TaskID")
+				}
 			}
 		}
 
