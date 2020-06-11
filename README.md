@@ -6,7 +6,7 @@
 
 Dies ist ein Kafka Framework für Apache Mesos
 
-## Vorraussetzung
+## Voraussetzung
 
 Dieses Framework ist aktuell so erstellt, dass es MESOS mit SSL Verschlüsselung und Authentication benötigt.
 
