@@ -41,8 +41,8 @@ func init() {
 	config.ImageZookeeper = util.Getenv("IMAGE_ZOOKEEPER", "zookeeper:3.5.7")
 	config.ImageKafka = util.Getenv("IMAGE_KAFKA", "confluentinc/cp-kafka:5.4.1")
 	config.VolumeDriver = util.Getenv("VOLUME_DRIVER", "local")
-	config.VolumeKafka = util.Getenv("VOLUME_KAFAK", "/data/kafka")
-	config.VolumeZookeeper = util.Getenv("VOLUME_ZOOKEEPER", "/data/zookeeper")
+	config.VolumeKafka = util.SplitString(util.Getenv("VOLUME_KAFKA", "/data/kafka,"))
+	config.VolumeZookeeper = util.SplitString(util.Getenv("VOLUME_ZOOKEEPER", "/data/zookeeper,"))
 
 	// The comunication to the mesos server should be via ssl or not
 	if strings.Compare(os.Getenv("MESOS_SSL"), "true") == 0 {
