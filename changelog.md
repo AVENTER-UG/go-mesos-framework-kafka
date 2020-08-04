@@ -2,6 +2,8 @@
 
 ## dev
 
+## v0.0.3
+
 - Add persistent storage Support
 - Change to go mod
 
