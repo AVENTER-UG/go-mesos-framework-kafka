@@ -1,6 +1,6 @@
 package types
 
-import mesosproto "../proto"
+import mesosproto "go-mesos-framework-kafka/proto"
 
 // Config is a struct of the framework configuration
 type Config struct {
@@ -44,8 +44,8 @@ type Config struct {
 	ImageZookeeper        string
 	ImageKafka            string
 	VolumeDriver          string
-	VolumeZookeeper       string
-	VolumeKafka           string
+	VolumeZookeeper       []string
+	VolumeKafka           []string
 }
 
 // Command is a chan which include all the Information about the started tasks

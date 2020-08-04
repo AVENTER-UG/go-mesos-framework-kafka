@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	mesosproto "../proto"
+	mesosproto "go-mesos-framework-kafka/proto"
+
 	"github.com/sirupsen/logrus"
 )
 

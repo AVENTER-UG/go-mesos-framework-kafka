@@ -6,9 +6,10 @@ import (
 	"strings"
 	"sync/atomic"
 
-	mesosproto "../proto"
+	mesosproto "go-mesos-framework-kafka/proto"
 
-	cfg "../types"
+	cfg "go-mesos-framework-kafka/types"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -92,7 +93,7 @@ func StartZookeeper(id int) {
 	cmd.IsZookeeper = true
 	cmd.Volumes = []*mesosproto.Volume{
 		{
-			HostPath:      func() *string { x := config.VolumeZookeeper + "/" + strconv.Itoa(id); return &x }(),
+			HostPath:      func() *string { x := config.VolumeZookeeper[id]; return &x }(),
 			ContainerPath: func() *string { x := "/datalog"; return &x }(),
 			Mode:          mesosproto.Volume_RW.Enum(),
 		},

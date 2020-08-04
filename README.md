@@ -37,8 +37,8 @@ export KAFKA_CUSTOM_DOMAIN=""
 export IMAGE_KAFKA="confluentinc/cp-kafka:5.4.1"
 export IMAGE_ZOOKEEPER="zookeeper:3.5.7"
 export VOLUME_DRIVER="local"
-export VOLUME_KAFKA="/data/kafka"
-export VOLUME_ZOOKEEPER="/data/zookeeper"
+export VOLUME_KAFKA="/tmp/kafka1,/tmp/kafka2,/tmp/kafka3"
+export VOLUME_ZOOKEEPER="/tmp/zookeeper1,/tmp/zookeeper2,/tmp/zookeeper3"
 
 go run init.go app.go
 ```

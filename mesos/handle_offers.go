@@ -3,8 +3,8 @@ package mesos
 import (
 	"github.com/sirupsen/logrus"
 
-	mesosproto "../proto"
-	cfg "../types"
+	mesosproto "go-mesos-framework-kafka/proto"
+	cfg "go-mesos-framework-kafka/types"
 )
 
 func defaultResources(cmd cfg.Command) []*mesosproto.Resource {

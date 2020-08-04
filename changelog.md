@@ -1,6 +1,11 @@
 # Changelog
 
-## v0.0.1
+## dev
+
+- Add persistent storage Support
+- Change to go mod
+
+## v0.0.2
 
 - Add start mesos container
 - Add start command

@@ -7,8 +7,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
-	mesos "../mesos"
-	mesosproto "../proto"
+	mesosproto "go-mesos-framework-kafka/proto"
+
+	mesos "go-mesos-framework-kafka/mesos"
 )
 
 // V0ScaleKafka will scale the kafka service

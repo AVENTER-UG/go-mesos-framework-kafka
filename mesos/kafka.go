@@ -5,8 +5,9 @@ import (
 	"strconv"
 	"sync/atomic"
 
-	mesosproto "../proto"
-	cfg "../types"
+	mesosproto "go-mesos-framework-kafka/proto"
+	cfg "go-mesos-framework-kafka/types"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -87,7 +88,7 @@ func StartKafka(id int) {
 
 	cmd.Volumes = []*mesosproto.Volume{
 		{
-			HostPath:      func() *string { x := config.VolumeKafka; return &x }(),
+			HostPath:      func() *string { x := config.VolumeKafka[id]; return &x }(),
 			ContainerPath: func() *string { x := "/var/lib/kafka/data"; return &x }(),
 			Mode:          mesosproto.Volume_RW.Enum(),
 		},
