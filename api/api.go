@@ -8,7 +8,7 @@ import (
 	//"io/ioutil"
 	"net/http"
 
-	cfg "../types"
+	cfg "go-mesos-framework-kafka/types"
 )
 
 // Service include all the current vars and global config

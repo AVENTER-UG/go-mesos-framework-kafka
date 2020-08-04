@@ -6,10 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"./api"
-	"./mesos"
-	mesosproto "./proto"
-	cfg "./types"
+	"go-mesos-framework-kafka/api"
+	"go-mesos-framework-kafka/mesos"
+	mesosproto "go-mesos-framework-kafka/proto"
+	cfg "go-mesos-framework-kafka/types"
 
 	util "git.aventer.biz/AVENTER/util"
 	"github.com/Showmax/go-fqdn"

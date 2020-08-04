@@ -3,8 +3,8 @@ package mesos
 import (
 	"strconv"
 
-	mesosproto "../proto"
-	cfg "../types"
+	mesosproto "go-mesos-framework-kafka/proto"
+	cfg "go-mesos-framework-kafka/types"
 )
 
 func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command) ([]*mesosproto.TaskInfo, error) {

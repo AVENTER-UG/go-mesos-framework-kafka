@@ -7,8 +7,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
-	mesos "../mesos"
-	mesosproto "../proto"
+	mesos "go-mesos-framework-kafka/mesos"
+	mesosproto "go-mesos-framework-kafka/proto"
 )
 
 // V0ScaleZookeeper will scale the zookeeper service

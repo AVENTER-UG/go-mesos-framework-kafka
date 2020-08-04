@@ -1,6 +1,6 @@
 package types
 
-import mesosproto "../proto"
+import mesosproto "go-mesos-framework-kafka/proto"
 
 // Config is a struct of the framework configuration
 type Config struct {

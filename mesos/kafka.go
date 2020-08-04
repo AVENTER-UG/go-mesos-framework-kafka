@@ -5,8 +5,9 @@ import (
 	"strconv"
 	"sync/atomic"
 
-	mesosproto "../proto"
-	cfg "../types"
+	mesosproto "go-mesos-framework-kafka/proto"
+	cfg "go-mesos-framework-kafka/types"
+
 	"github.com/sirupsen/logrus"
 )
 

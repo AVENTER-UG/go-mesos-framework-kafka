@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
-	mesos "../mesos"
+	mesos "go-mesos-framework-kafka/mesos"
 )
 
 // V0KillTask will kill the given task id

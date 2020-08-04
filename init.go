@@ -7,7 +7,7 @@ import (
 
 	util "git.aventer.biz/AVENTER/util.git"
 
-	cfg "./types"
+	cfg "go-mesos-framework-kafka/types"
 )
 
 var config cfg.Config

@@ -3,8 +3,9 @@ package api
 import (
 	"net/http"
 
-	mesos "../mesos"
-	mesosproto "../proto"
+	mesos "go-mesos-framework-kafka/mesos"
+	mesosproto "go-mesos-framework-kafka/proto"
+
 	"github.com/sirupsen/logrus"
 )
 
