@@ -3,17 +3,21 @@
 [![Donate](https://img.shields.io/liberapay/receives/AVENTER.svg?logo=liberapay)](https://liberapay.com/mesos)
 [![Support Chat](https://img.shields.io/static/v1?label=Chat&message=Support&color=brightgreen)](https://riot.im/app/#/room/#support:matrix.aventer.biz)
 
-
 Dies ist ein Kafka Framework für Apache Mesos
 
 ## Voraussetzung
 
-Dieses Framework ist aktuell so erstellt, dass es MESOS mit SSL Verschlüsselung und Authentication benötigt.
+- Apache Mesos ab 1.6.0
+- Mesos mit SSL und Authentication ist Optional
+- Persistent Storage
 
 ## Framework starten
 
-```Bash
+Mit den folgenden Umgebungsvariablen kann das Framework konfiguriert werden. Nach dem Starten wird es sich an den Mesos Master anmelden und erscheint als "kafkaframework" in der Mesos UI. Sobald sich das Framework erfolgreich initialisiert hat, startet es Zookeeper und anschließend Kafka.
 
+
+
+```Bash
 export FRAMEWORK_USER="root"
 export FRAMEWORK_NAME="kafkaframework"
 export FRAMEWORK_PORT="10000"
@@ -42,8 +46,6 @@ export VOLUME_ZOOKEEPER="/tmp/zookeeper1,/tmp/zookeeper2,/tmp/zookeeper3"
 
 go run init.go app.go
 ```
-
-Dies startet das Framework. Es wird sich an den Mesos Master anmelden. Nach wenigen Sekunden kann man "kafkaframework" als Eintrag in der Mesos UI sehen. Sobald das Framework erfolgreich gestartet wurde, startet es Zookeeper. Ist Zookeeper erfolgreich gestartet, werden die Kafka Container gestartet.
 
 ![Kafka Framework in Mesos](kafka_mesos.gif)
 
