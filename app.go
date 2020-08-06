@@ -36,8 +36,6 @@ func main() {
 	config.Hostname = hostname
 	config.Listen = listen
 
-	util.SetLogging(config.LogLevel, config.EnableSyslog, config.AppName)
-
 	config.State = map[string]cfg.State{}
 
 	config.FrameworkInfo.User = &config.FrameworkUser
