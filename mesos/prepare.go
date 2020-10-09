@@ -59,31 +59,30 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 				NetworkInfos: cmd.NetworkInfo,
 			},
 		}}, nil
-	} else {
-		return []*mesosproto.TaskInfo{{
-			Name: &cmd.TaskName,
-			TaskId: &mesosproto.TaskID{
-				Value: &newTaskID,
-			},
-			AgentId:   agent,
-			Resources: defaultResources(cmd),
-			Command: &mesosproto.CommandInfo{
-				Shell:       &cmd.Shell,
-				Uris:        cmd.Uris,
-				Environment: &cmd.Environment,
-			},
-			Container: &mesosproto.ContainerInfo{
-				Type:     contype,
-				Volumes:  cmd.Volumes,
-				Hostname: &cmd.Hostname,
-				Docker: &mesosproto.ContainerInfo_DockerInfo{
-					Image:        &cmd.ContainerImage,
-					Network:      networkMode,
-					PortMappings: cmd.DockerPortMappings,
-					Privileged:   &cmd.Privileged,
-				},
-				NetworkInfos: cmd.NetworkInfo,
-			},
-		}}, nil
 	}
+	return []*mesosproto.TaskInfo{{
+		Name: &cmd.TaskName,
+		TaskId: &mesosproto.TaskID{
+			Value: &newTaskID,
+		},
+		AgentId:   agent,
+		Resources: defaultResources(cmd),
+		Command: &mesosproto.CommandInfo{
+			Shell:       &cmd.Shell,
+			Uris:        cmd.Uris,
+			Environment: &cmd.Environment,
+		},
+		Container: &mesosproto.ContainerInfo{
+			Type:     contype,
+			Volumes:  cmd.Volumes,
+			Hostname: &cmd.Hostname,
+			Docker: &mesosproto.ContainerInfo_DockerInfo{
+				Image:        &cmd.ContainerImage,
+				Network:      networkMode,
+				PortMappings: cmd.DockerPortMappings,
+				Privileged:   &cmd.Privileged,
+			},
+			NetworkInfos: cmd.NetworkInfo,
+		},
+	}}, nil
 }

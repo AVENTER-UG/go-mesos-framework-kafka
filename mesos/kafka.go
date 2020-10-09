@@ -25,7 +25,7 @@ func SearchMissingKafka() {
 	}
 }
 
-// Get out Status of the given kafka ID
+// StatusKafka Get out Status of the given kafka ID
 func StatusKafka(id int) *cfg.State {
 	if config.State != nil {
 		for _, element := range config.State {
@@ -39,7 +39,7 @@ func StatusKafka(id int) *cfg.State {
 	return nil
 }
 
-// start kafka with the given id
+// StartKafka with the given id
 func StartKafka(id int) {
 	newTaskID := atomic.AddUint64(&config.TaskID, 1)
 
@@ -56,7 +56,7 @@ func StartKafka(id int) {
 			logrus.Info("startKafka: kafka is starting ", id)
 			return
 		}
-		if status.Status.State == mesosproto.TaskState_TASK_RUNNING.Enum() {
+	 	if status.Status.State == mesosproto.TaskState_TASK_RUNNING.Enum() {
 			logrus.Info("startKafka: kafka already running ", id)
 			return
 		}
@@ -88,11 +88,26 @@ func StartKafka(id int) {
 
 	cmd.Volumes = []*mesosproto.Volume{
 		{
-			HostPath:      func() *string { x := config.VolumeKafka[id]; return &x }(),
 			ContainerPath: func() *string { x := "/var/lib/kafka/data"; return &x }(),
 			Mode:          mesosproto.Volume_RW.Enum(),
+			Source: &mesosproto.Volume_Source{
+				Type: mesosproto.Volume_Source_DOCKER_VOLUME.Enum(),
+				DockerVolume: &mesosproto.Volume_Source_DockerVolume {
+						Driver: func() *string { x := config.VolumeDriver; return &x }(),
+						Name:   func() *string { x := config.VolumeKafka[id]; return &x }(),
+				},
+			},
 		},
 	}
+
+	//	                            'source' : {
+	//                                'type' : 'DOCKER_VOLUME',
+	//                                'docker_volume' : {
+	//                                    'driver': self.mesos_docker_volume_dag_driver,
+	//                                    'name' : self.mesos_docker_volume_dag_name
+	//                                }
+	//                            }
+
 
 	cmd.Environment.Variables = []*mesosproto.Environment_Variable{
 		{

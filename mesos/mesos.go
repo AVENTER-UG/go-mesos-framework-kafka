@@ -94,13 +94,13 @@ func Subscribe() error {
 			switch *event.Type {
 			case mesosproto.Event_SUBSCRIBED:
 				logrus.Info("Subscribed")
+				logrus.Info(event.Subscribed.FrameworkId)
 				config.FrameworkInfo.Id = event.Subscribed.FrameworkId
 				config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
 
 				// Save framework info
 				persConf, _ := json.Marshal(&config)
 				ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
-
 			case mesosproto.Event_UPDATE:
 				logrus.Debug("Update", HandleUpdate(&event))
 			case mesosproto.Event_HEARTBEAT:
