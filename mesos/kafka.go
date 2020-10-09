@@ -100,15 +100,6 @@ func StartKafka(id int) {
 		},
 	}
 
-	//	                            'source' : {
-	//                                'type' : 'DOCKER_VOLUME',
-	//                                'docker_volume' : {
-	//                                    'driver': self.mesos_docker_volume_dag_driver,
-	//                                    'name' : self.mesos_docker_volume_dag_name
-	//                                }
-	//                            }
-
-
 	cmd.Environment.Variables = []*mesosproto.Environment_Variable{
 		{
 			Name:  func() *string { x := "SERVICE_NAME"; return &x }(),

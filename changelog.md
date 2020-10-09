@@ -2,6 +2,10 @@
 
 ## dev
 
+## v0.0.4
+
+- Add volume driver support
+
 ## v0.0.3
 
 - Add persistent storage Support
