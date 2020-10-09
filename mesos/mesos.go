@@ -80,7 +80,7 @@ func Subscribe() error {
 		// Rest data will be bytes of next message
 		bytesCount, _ = strconv.Atoi((line[bytesCount:]))
 
-		var event mesosproto.Event
+		var event mesosproto.Event // Event as ProtoBuf
 		jsonpb.UnmarshalString(data, &event)
 		logrus.Debug("Subscribe Got: ", event.GetType())
 
@@ -94,13 +94,12 @@ func Subscribe() error {
 			switch *event.Type {
 			case mesosproto.Event_SUBSCRIBED:
 				logrus.Info("Subscribed")
-				config.FrameworkInfo.Id = event.Subscribed.FrameworkId
+				logrus.Info("FrameworkId: ", event.Subscribed.GetFrameworkId())
+				config.FrameworkInfo.Id = event.Subscribed.GetFrameworkId()
 				config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
-
 				// Save framework info
 				persConf, _ := json.Marshal(&config)
 				ioutil.WriteFile(config.FrameworkInfoFile, persConf, 0644)
-
 			case mesosproto.Event_UPDATE:
 				logrus.Debug("Update", HandleUpdate(&event))
 			case mesosproto.Event_HEARTBEAT:

@@ -91,13 +91,21 @@ func StartZookeeper(id int) {
 	cmd.Hostname = "av_zookeeper" + strconv.Itoa(id) + config.ZookeeperCustomString + "." + config.Domain
 	cmd.InternalID = id
 	cmd.IsZookeeper = true
+
 	cmd.Volumes = []*mesosproto.Volume{
 		{
-			HostPath:      func() *string { x := config.VolumeZookeeper[id]; return &x }(),
 			ContainerPath: func() *string { x := "/datalog"; return &x }(),
 			Mode:          mesosproto.Volume_RW.Enum(),
+			Source: &mesosproto.Volume_Source{
+				Type: mesosproto.Volume_Source_DOCKER_VOLUME.Enum(),
+				DockerVolume: &mesosproto.Volume_Source_DockerVolume {
+						Driver: func() *string { x := config.VolumeDriver; return &x }(),
+						Name:   func() *string { x := config.VolumeZookeeper[id]; return &x }(),
+				},
+			},
 		},
 	}
+
 	sI := strconv.Itoa(id)
 	cmd.Environment.Variables = []*mesosproto.Environment_Variable{
 		{
