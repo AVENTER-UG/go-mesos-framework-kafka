@@ -34,7 +34,7 @@ func StatusZookeeper(id int) *cfg.State {
 	if config.State != nil {
 		for _, element := range config.State {
 			if element.Status != nil {
-				if element.Command.InternalID == id {
+				if element.Command.InternalID == id && element.Command.IsZookeeper == true {
 					return &element
 				}
 			}
@@ -98,9 +98,9 @@ func StartZookeeper(id int) {
 			Mode:          mesosproto.Volume_RW.Enum(),
 			Source: &mesosproto.Volume_Source{
 				Type: mesosproto.Volume_Source_DOCKER_VOLUME.Enum(),
-				DockerVolume: &mesosproto.Volume_Source_DockerVolume {
-						Driver: func() *string { x := config.VolumeDriver; return &x }(),
-						Name:   func() *string { x := config.VolumeZookeeper[id]; return &x }(),
+				DockerVolume: &mesosproto.Volume_Source_DockerVolume{
+					Driver: func() *string { x := config.VolumeDriver; return &x }(),
+					Name:   func() *string { x := config.VolumeZookeeper[id]; return &x }(),
 				},
 			},
 		},

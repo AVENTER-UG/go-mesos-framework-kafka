@@ -2,6 +2,8 @@
 
 ## dev
 
+- Fix scale down mismatch
+
 ## v0.0.4
 
 - Add volume driver support

@@ -30,7 +30,7 @@ func StatusKafka(id int) *cfg.State {
 	if config.State != nil {
 		for _, element := range config.State {
 			if element.Status != nil {
-				if element.Command.InternalID == id {
+				if element.Command.InternalID == id && element.Command.IsKafka == true {
 					return &element
 				}
 			}
@@ -56,7 +56,7 @@ func StartKafka(id int) {
 			logrus.Info("startKafka: kafka is starting ", id)
 			return
 		}
-	 	if status.Status.State == mesosproto.TaskState_TASK_RUNNING.Enum() {
+		if status.Status.State == mesosproto.TaskState_TASK_RUNNING.Enum() {
 			logrus.Info("startKafka: kafka already running ", id)
 			return
 		}
@@ -92,9 +92,9 @@ func StartKafka(id int) {
 			Mode:          mesosproto.Volume_RW.Enum(),
 			Source: &mesosproto.Volume_Source{
 				Type: mesosproto.Volume_Source_DOCKER_VOLUME.Enum(),
-				DockerVolume: &mesosproto.Volume_Source_DockerVolume {
-						Driver: func() *string { x := config.VolumeDriver; return &x }(),
-						Name:   func() *string { x := config.VolumeKafka[id]; return &x }(),
+				DockerVolume: &mesosproto.Volume_Source_DockerVolume{
+					Driver: func() *string { x := config.VolumeDriver; return &x }(),
+					Name:   func() *string { x := config.VolumeKafka[id]; return &x }(),
 				},
 			},
 		},
