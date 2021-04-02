@@ -1,8 +1,9 @@
 # Changelog
 
-## dev
+## master
 
 - Fix scale down mismatch
+- Removes via api killed tasks from config. Same with scale down agents/servers. 
 
 ## v0.0.4
 
