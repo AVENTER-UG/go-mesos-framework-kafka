@@ -11,7 +11,7 @@ import (
 	mesosproto "go-mesos-framework-kafka/proto"
 	cfg "go-mesos-framework-kafka/types"
 
-	util "git.aventer.biz/AVENTER/util"
+	util "github.com/AVENTER-UG/util/util"
 	"github.com/Showmax/go-fqdn"
 	"github.com/sirupsen/logrus"
 )

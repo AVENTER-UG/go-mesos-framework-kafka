@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	util "git.aventer.biz/AVENTER/util.git"
+	util "github.com/AVENTER-UG/util/util"
 
 	cfg "go-mesos-framework-kafka/types"
 )
